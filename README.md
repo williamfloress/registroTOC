@@ -2,7 +2,7 @@
 
 Aplicación web local-first para llevar el libro financiero y controlar los aportes mensuales de la Tercera Orden Carmelita (TOC). Está pensada para simplificar el registro administrativo con una interfaz clara en español y conservar la información en el dispositivo.
 
-> **Estado:** MVP en desarrollo incremental. Están implementadas la fundación, el libro financiero, el padrón y una primera versión del control de aportes. Las secciones de este documento describen el alcance previsto del MVP completo; los módulos aún no disponibles se identifican como pendientes.
+> **Estado:** MVP en desarrollo incremental. Están implementados el resumen, el libro financiero, el padrón, los aportes y los reportes PDF/Excel. El respaldo JSON y la PWA continúan pendientes.
 
 ## Descripción corta para GitHub
 
@@ -68,7 +68,7 @@ El MVP completo permitirá exportar:
 
 Los documentos mostrarán fechas, formatos numéricos, encabezados y totales adecuados para impresión. Ningún reporte sumará USD y VES como si fueran una sola moneda.
 
-**Estado:** pendiente.
+**Estado:** implementado. La sección Reportes genera PDF y Excel del libro por cuenta, mes, año, rango de fechas o historial completo. Los reportes de aportes incluyen matriz anual, detalle de pagos y anulaciones, resumen mensual y totales separados en USD/VES. Los documentos identifican cuentas y monedas, repiten encabezados y ofrecen formatos de impresión; los totales excluyen pagos anulados.
 
 ### 6. Respaldo y restauración
 
@@ -100,7 +100,7 @@ La aplicación ofrecerá configuración de cuentas y obligaciones futuras, solic
 - Zod para validación de entradas.
 - Lógica de dominio y cálculos monetarios separados de la interfaz y de la persistencia.
 - Vitest para pruebas unitarias.
-- ExcelJS y jsPDF previstos para exportaciones; Playwright para pruebas de aceptación.
+- ExcelJS para libros de cálculo y jsPDF + AutoTable para documentos PDF; Playwright para pruebas de aceptación futuras.
 - Sin backend, cuentas de usuario, autenticación ni sincronización remota en el MVP.
 
 ## Privacidad y límites de almacenamiento

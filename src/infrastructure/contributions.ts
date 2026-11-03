@@ -25,6 +25,8 @@ export const contributionRepository = {
   async historyForBatch(id: string) {
     return (await db.contributionHistory.where('paymentBatchId').equals(id).toArray()).sort((a,b)=>a.year-b.year||a.month-b.month)
   },
+  historyForYear: (year: number) => db.contributionHistory.where('year').equals(year).toArray(),
+  allBatches: () => db.paymentBatches.toArray(),
   async registerPayment(rawInput: unknown): Promise<ContributionBatch> {
     const input = contributionPaymentSchema.parse(rawInput)
     if (!isValidDate(input.paymentDate)) throw new Error('La fecha del pago no es válida')

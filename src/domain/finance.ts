@@ -10,11 +10,25 @@ export type FinancialMovement = {
   id: string; accountId: string; date: string; description: string; type: MovementType
   amountMinor: number; notes?: string; createdAt: string; updatedAt: string
 }
+export type Participant = {
+  id: string; firstName: string; lastName: string; active: boolean; notes?: string; createdAt: string; updatedAt: string
+}
+export type ParticipantInput = Pick<Participant, 'firstName' | 'lastName' | 'notes'>
+export type ObligationSchedule = { id: string; effectiveMonth: string; amountUsdMinor: number; createdAt: string; updatedAt: string }
 export type MovementInput = Omit<FinancialMovement, 'id' | 'createdAt' | 'updatedAt'>
 export const movementSchema = z.object({
   accountId: z.string().min(1), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   description: z.string().trim().min(1, 'Escribe el concepto').max(120),
   type: z.enum(['income', 'expense']), amountMinor: z.number().int().positive(), notes: z.string().max(500).optional(),
+})
+export const participantSchema = z.object({
+  firstName: z.string().trim().min(1, 'Escribe los nombres').max(80),
+  lastName: z.string().trim().min(1, 'Escribe los apellidos').max(80),
+  notes: z.string().trim().max(500).optional(),
+})
+export const obligationSchema = z.object({
+  effectiveMonth: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Selecciona un mes válido'),
+  amountUsdMinor: z.number().int().positive('La obligación debe ser mayor que cero'),
 })
 
 export function parseAmountToMinor(value: string, currency: Currency, allowZero = false): number {

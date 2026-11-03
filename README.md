@@ -2,7 +2,7 @@
 
 Aplicación web local-first para llevar el libro financiero y controlar los aportes mensuales de la Tercera Orden Carmelita (TOC). Está pensada para simplificar el registro administrativo con una interfaz clara en español y conservar la información en el dispositivo.
 
-> **Estado:** MVP en desarrollo incremental. Actualmente está implementada la fundación de la aplicación y el primer módulo del libro financiero. Las secciones de este documento describen el alcance previsto del MVP completo; los módulos aún no disponibles se identifican como pendientes.
+> **Estado:** MVP en desarrollo incremental. Están implementadas la fundación, el libro financiero inicial y la gestión de participantes/obligaciones. Las secciones de este documento describen el alcance previsto del MVP completo; los módulos aún no disponibles se identifican como pendientes.
 
 ## Descripción corta para GitHub
 
@@ -43,7 +43,7 @@ El libro conservará el formato familiar de fecha, concepto, debe, haber y saldo
 
 Cada participante tendrá identificador, nombres, apellidos, estado activo/inactivo, fecha de creación y notas opcionales. Se podrá desactivar un participante para conservar sus aportes históricos; no se borrarán físicamente sus registros relacionados.
 
-**Estado:** pendiente.
+**Estado:** implementación inicial disponible. Incluye alta, edición, búsqueda, filtro por estado y desactivación/reactivación sin borrado físico.
 
 ### 4. Aportes mensuales
 
@@ -56,7 +56,7 @@ Cada participante tendrá identificador, nombres, apellidos, estado activo/inact
 - Los aportes y el libro financiero serán módulos independientes: registrar un aporte no creará automáticamente un movimiento de caja.
 - Los resúmenes mantendrán los montos en USD y VES separados; cualquier equivalente informativo en USD usará las tasas guardadas en cada pago.
 
-**Estado:** pendiente.
+**Estado:** configuración inicial disponible. La obligación predeterminada es 1 USD por participante al mes; se pueden programar, corregir o retirar vigencias futuras sin modificar las vigencias actuales o históricas. La integración de la obligación con pagos mensuales se completará en la fase de aportes.
 
 ### 5. Reportes
 
@@ -130,7 +130,7 @@ La prueba actual cubre cálculos de saldo, separación de cuentas, apertura y ci
 ## Hoja de ruta del MVP
 
 1. **Fundación y libro financiero:** implementados en su versión inicial; faltan filtros de rango y aceptación de persistencia en navegador.
-2. **Participantes y aportes:** CRUD, matriz anual, pagos USD/VES, tasas históricas, lotes atrasados y prevención de duplicados.
+2. **Participantes y obligaciones:** implementación inicial disponible; falta revisión visual/interactiva en navegador. **Aportes:** matriz anual, pagos USD/VES, tasas históricas, lotes atrasados y prevención de duplicados siguen pendientes.
 3. **Resumen:** saldos por cuenta, movimiento del período, aportes y actividad reciente.
 4. **Reportes:** exportaciones PDF y Excel para el libro y los aportes.
 5. **Respaldo:** JSON versionado, validación, restauración transaccional y recordatorios.

@@ -1,0 +1,75 @@
+:root{font-size:17px}
+body{line-height:1.5}
+button,input,select,textarea{font-size:inherit}
+:focus-visible{outline:3px solid #466a47;outline-offset:2px}
+.brand strong{font-size:17px}
+.brand small{font-size:13px;color:#62695f}
+.workspace-label,.eyebrow{font-size:12px;letter-spacing:.8px}
+.nav-link{min-height:46px;font-size:15px}
+.local-card strong{font-size:13px}
+.local-card span,.help-link{font-size:12px}
+.breadcrumb{font-size:14px}
+.offline-pill{font-size:13px}
+.avatar{font-size:12px}
+.page-heading h1,.placeholder-page h1{font-size:30px}
+.page-heading p{font-size:15px}
+.button{min-height:44px;padding:10px 15px;font-size:14px}
+.account-name{font-size:14px}
+.account-balance{font-size:23px}
+.account-meta{font-size:13px}
+.account-meta button{min-height:38px;font-size:13px}
+.currency-tag{font-size:12px}
+.summary-title{font-size:14px}
+.month-picker input{font-size:14px;min-height:40px}
+.summary-item>span{font-size:13px}
+.income-text,.expense-text{font-size:13px}
+.ledger-header h2{font-size:17px}
+.ledger-header>div:first-child>span{font-size:13px}
+.select-wrap,.search-box{min-height:42px}
+.select-wrap select,.search-box input{font-size:13px}
+th{font-size:12px;padding:13px 12px}
+td{font-size:14px;padding:14px 12px}
+.date-cell,.account-chip{font-size:12px}
+.concept-cell strong{font-size:14px}
+.concept-cell small{font-size:12px}
+.type-mark{width:32px;height:32px}
+.account-chip{padding:5px 8px}
+.balance-cell{font-size:14px}
+.row-actions{opacity:1;gap:7px}
+.row-actions button,.participant-actions button,.upcoming-row button{min-height:38px;padding:6px;color:#425c40;font-size:12px}
+.empty-state strong{font-size:15px}
+.empty-state>span:not(.empty-icon){font-size:13px}
+.empty-icon{width:48px;height:48px}
+.footer-account{font-size:12px}
+.footer-account strong{font-size:13px}
+.page-footer{font-size:12px}
+.modal-heading h2{font-size:22px}
+.field-label{font-size:14px}
+.field-label>input,.field-label>select,.field-label>textarea{min-height:46px;font-size:15px;padding:10px 12px}
+.field-label>textarea{min-height:auto}
+.segmented button{min-height:44px;font-size:14px}
+.optional{font-size:13px}
+.callout{font-size:13px}
+.form-error{font-size:13px}
+.toast{font-size:14px}
+.participant-summary>div:nth-child(2)>span,.participant-summary>div:nth-child(4)>span{font-size:13px}
+.participant-summary>div:nth-child(2)>strong{font-size:20px}
+.participant-summary>div:nth-child(4)>strong{font-size:17px}
+.participant-summary small{font-size:12px}
+.person-name strong{font-size:14px}
+.person-avatar{width:34px;height:34px;font-size:11px}
+.status-badge{font-size:12px;padding:5px 8px}
+.participant-notes{font-size:13px}
+.upcoming-title{font-size:12px}
+.upcoming-row{font-size:14px;padding:11px 2px}
+.obligation-form-footer>span{font-size:12px}
+.obligation-form-footer .button{font-size:13px;min-height:42px}
+@media(max-width:560px){
+  :root{font-size:16px}
+  .page-heading h1,.placeholder-page h1{font-size:27px}
+  .account-balance{font-size:22px}
+  .offline-pill{font-size:0}
+  .offline-pill i{width:9px;height:9px}
+  .row-actions{opacity:1}
+  .row-actions button{font-size:13px}
+}

@@ -1,0 +1,47 @@
+:root{
+  color-scheme:light;
+  --carmelita-gold:#b0800c;
+  --carmelita-brown:#644b0f;
+  --carmelita-taupe:#ab9e77;
+  --carmelita-ochre:#7d570d;
+  --carmelita-ink:#2f2816;
+  --carmelita-gold-text:#1a170f;
+  --carmelita-soft:#f7f3e9;
+  --carmelita-line:#ded4bb;
+}
+
+:focus-visible{outline:3px solid var(--carmelita-gold);outline-offset:3px}
+
+.button.primary{background:var(--carmelita-brown);color:#fff;border-color:var(--carmelita-brown)}
+.button.primary:hover{background:var(--carmelita-ochre);border-color:var(--carmelita-ochre)}
+.button.primary:active{background:var(--carmelita-ink);border-color:var(--carmelita-ink)}
+.button.primary:disabled{background:var(--carmelita-taupe);border-color:var(--carmelita-taupe);color:var(--carmelita-ink)}
+.button.secondary{background:#fff;border-color:var(--carmelita-ochre);color:var(--carmelita-brown)}
+.button.secondary:hover{background:var(--carmelita-soft);border-color:var(--carmelita-brown)}
+.button.subtle{background:var(--carmelita-gold);border-color:var(--carmelita-gold);color:var(--carmelita-gold-text)}
+.button.subtle:hover{background:#c18e11;border-color:#c18e11}
+
+.nav-link:hover{background:var(--carmelita-soft);color:var(--carmelita-brown)}
+.nav-link.active{background:#f1ead8;color:var(--carmelita-brown)}
+.nav-current{background:var(--carmelita-gold)}
+.icon-button:hover{background:var(--carmelita-soft);color:var(--carmelita-brown);border-color:var(--carmelita-taupe)}
+.account-meta button,.row-actions button,.participant-actions button,.upcoming-row button{color:var(--carmelita-brown)}
+.row-actions button:hover,.participant-actions button:hover,.upcoming-row button:hover{color:var(--carmelita-ochre)}
+
+.matrix-row-action button,.history-detail-button{background:#fff;border-color:var(--carmelita-gold);color:var(--carmelita-brown)}
+.matrix-row-action button:hover,.history-detail-button:hover{background:var(--carmelita-soft);border-color:var(--carmelita-ochre)}
+.contribution-empty{background:#fffaf0;border-color:#d9c48d;color:var(--carmelita-brown)}
+.contribution-empty:hover{background:#f5e8c8;border-color:var(--carmelita-gold);color:var(--carmelita-ink)}
+.contribution-mark.usd{background:var(--carmelita-brown);color:#fff}
+.contribution-mark.ves{background:var(--carmelita-gold);color:var(--carmelita-gold-text)}
+.contribution-mark small{font-size:12px}
+.period-pills button.selected{background:var(--carmelita-gold);border-color:var(--carmelita-gold);color:var(--carmelita-gold-text)}
+.segmented button.selected.usd-selected{background:var(--carmelita-brown);border-color:var(--carmelita-brown);color:#fff}
+.segmented button.selected.ves-selected{background:var(--carmelita-gold);border-color:var(--carmelita-gold);color:var(--carmelita-gold-text)}
+.payment-confirmation{background:var(--carmelita-soft);border-color:var(--carmelita-line)}
+.payment-confirmation-title,.payment-total strong{color:var(--carmelita-brown)}
+.toast{background:var(--carmelita-ink);color:#fff}
+.danger-button{background:#fbefed;color:#8d3027;border-color:#d9a49a}
+.danger-button:hover{background:#f7e4e0;color:#75251e;border-color:#bd7467}
+
+::selection{background:#dfc990;color:var(--carmelita-ink)}

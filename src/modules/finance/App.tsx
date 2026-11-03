@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, CircleHelp, FileBarChart2, HandCoins, LayoutDashboard, ListFilter, Menu, Plus, Search, Settings2, ShieldCheck, Users, Wallet, X } from 'lucide-react'
+import { Activity, ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, CircleHelp, FileBarChart2, HandCoins, LayoutDashboard, ListFilter, Menu, Plus, Search, Settings2, ShieldCheck, Users, Wallet, X } from 'lucide-react'
 import { balanceAt, contributionPaymentSchema, convertUsdMinorToVesMinor, convertVesMinorToUsdMinor, formatMoney, movementSchema, obligationSchema, participantSchema, parseAmountToMinor, summarizePeriod, type Contribution, type ContributionBatch, type ContributionPeriod, type FinancialAccount, type FinancialMovement, type MovementType, type ObligationSchedule, type Participant } from '../../domain/finance'
 import { ensureInitialAccounts, ensureInitialObligations, financeRepository, obligationRepository, participantRepository } from '../../infrastructure/database'
 import { contributionRepository } from '../../infrastructure/contributions'
+import { summarizeContributionMonth } from '../../domain/dashboard'
 import './participants.css'
 import './contributions.css'
+import './dashboard.css'
 
 const links = [
   { label: 'Resumen', icon: LayoutDashboard }, { label: 'Libro financiero', icon: BookOpen },
@@ -21,9 +23,9 @@ export default function App() {
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [movements, setMovements] = useState<FinancialMovement[]>([])
   const [ready, setReady] = useState(false)
-  const [activePage, setActivePage] = useState('Libro financiero')
+  const [activePage, setActivePage] = useState('Resumen')
   const [accountId, setAccountId] = useState('all')
-  const [period, setPeriod] = useState(new Date().toISOString().slice(0, 7))
+  const [period, setPeriod] = useState(todayLocal().slice(0, 7))
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<'new' | 'edit' | 'opening' | null>(null)
   const [selected, setSelected] = useState<FinancialMovement | null>(null)
@@ -63,7 +65,7 @@ export default function App() {
     <main className="main-area">
       <header className="topbar"><button className="icon-button mobile-menu" onClick={() => setMobileNav(true)} aria-label="Abrir menú"><Menu size={20}/></button><div className="breadcrumb">Inicio <span>/</span> <strong>{currentPage}</strong></div><div className="topbar-right"><span className="offline-pill"><i/> Guardado local</span><div className="avatar">TO</div></div></header>
       <div className="page-content">
-        {activePage === 'Libro financiero' ? <>
+        {activePage === 'Resumen' ? <DashboardPage accounts={accounts} movements={movements} ready={ready} onNewMovement={() => { setSelected(null); setAccountId('all'); setModal('new') }} /> : activePage === 'Libro financiero' ? <>
           <div className="page-heading"><div><div className="eyebrow">GESTIÓN FINANCIERA</div><h1>Libro financiero</h1><p>Controla los ingresos y egresos de cada cuenta.</p></div><button className="button primary" onClick={() => { setSelected(null); setModal('new') }}><Plus size={17}/> Nuevo movimiento</button></div>
           <section className="account-grid">{accounts.map((a) => { const hasMovements = movements.some((m) => m.accountId === a.id); return <article key={a.id} className="account-card"><div className="card-top"><span className={`account-icon ${a.currency.toLowerCase()}`}><Wallet size={18}/></span><span className="currency-tag">{a.currency}</span></div><div className="account-name">{a.name}</div><div className="account-balance">{formatMoney(balanceAt(a, movements), a.currency)}</div><div className="account-meta">Saldo actual <button disabled={hasMovements} title={hasMovements ? 'Bloqueado luego del primer movimiento' : undefined} onClick={() => { setSelected(null); setModal('opening'); setAccountId(a.id) }}>{hasMovements ? 'Saldo inicial bloqueado' : 'Configurar saldo inicial'}</button></div></article> })}</section>
           <section className="summary-strip"><div className="summary-title"><CalendarDays size={17}/><span>Resumen del período</span></div><label className="month-picker"><input type="month" value={period} onChange={(e) => setPeriod(e.target.value)}/><ChevronDown size={14}/></label><div className="summary-stats">{summaries.map((s) => <div className="summary-item" key={s.account.id}><span>{s.account.name}</span><div><span className="income-text"><ArrowDownLeft size={13}/>{formatMoney(s.income, s.account.currency)}</span><span className="expense-text"><ArrowUpRight size={13}/>{formatMoney(s.expense, s.account.currency)}</span></div></div>)}</div></section>
@@ -86,6 +88,47 @@ export default function App() {
 
 function Placeholder({ page, onGo }: { page: string; onGo: () => void }) {
   return <div className="placeholder-page"><div className="eyebrow">REPORTESTOC</div><h1>{page}</h1><div className="placeholder-card"><span className="empty-icon"><BookOpen size={22}/></span><h2>Este módulo todavía no está implementado</h2><p>El libro financiero, el padrón y el control de aportes ya están disponibles. Este módulo se añadirá en una fase posterior.</p><button className="button primary" onClick={onGo}>Ir al libro financiero</button></div></div>
+}
+
+function DashboardPage({accounts,movements,ready,onNewMovement}:{accounts:FinancialAccount[];movements:FinancialMovement[];ready:boolean;onNewMovement:()=>void}){
+  const [period,setPeriod]=useState(todayLocal().slice(0,7))
+  const [participants,setParticipants]=useState<Participant[]>([])
+  const [contributions,setContributions]=useState<Contribution[]>([])
+  const [batches,setBatches]=useState<ContributionBatch[]>([])
+  const [dataReady,setDataReady]=useState(false)
+  const [error,setError]=useState('')
+  const [paymentOpen,setPaymentOpen]=useState(false)
+  const [year,month]=period.split('-').map(Number)
+  const from=monthStart(period)
+  const to=monthEnd(period)
+
+  async function refresh(){
+    const [people,paid,recent]=await Promise.all([participantRepository.list(),contributionRepository.forYear(year),contributionRepository.recentBatches()])
+    setParticipants(people);setContributions(paid);setBatches(recent);setDataReady(true);setError('')
+  }
+  useEffect(()=>{setDataReady(false);void refresh().catch(()=>{setError('No fue posible cargar el resumen local.');setDataReady(true)})},[year])
+
+  const accountSummaries=accounts.map((account)=>({account,balance:balanceAt(account,movements),...summarizePeriod(account,movements,from,to)}))
+  const contributionSummary=summarizeContributionMonth(participants,contributions,year,month)
+  const participantById=new Map(participants.map((person)=>[person.id,person]))
+  const movementActivity=movements.map((movement)=>{
+    const account=accounts.find((item)=>item.id===movement.accountId)
+    return {id:movement.id,date:movement.date,title:movement.description,detail:account?.name??'Cuenta archivada',currency:account?.currency??'USD',amount:movement.amountMinor,kind:movement.type==='income'?'income' as const:'expense' as const}
+  })
+  const paymentActivity=batches.map((batch)=>{
+    const person=participantById.get(batch.participantId)
+    return {id:batch.id,date:batch.paymentDate,title:batch.status==='paid'?'Pago de aporte registrado':'Pago de aportes anulado',detail:person?`${person.firstName} ${person.lastName}`:'Participante',currency:batch.currency,amount:batch.totalAmountMinor,kind:batch.status==='paid'?'contribution' as const:'void' as const}
+  })
+  const activity=[...movementActivity,...paymentActivity].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).slice(0,7)
+
+  return <>
+    <div className="page-heading dashboard-heading"><div><div className="eyebrow">TERCERA ORDEN CARMELITA</div><h1>Resumen</h1><p>Una vista rápida de las cuentas y aportes registrados.</p></div><div className="dashboard-actions"><label className="dashboard-period">Período<input type="month" value={period} onChange={(e)=>setPeriod(e.target.value)}/></label><button className="button secondary" onClick={()=>setPaymentOpen(true)} disabled={!participants.some((person)=>person.active)}><HandCoins size={17}/> Registrar aporte</button><button className="button primary" onClick={onNewMovement}><Plus size={17}/> Nuevo movimiento</button></div></div>
+    {error&&<div className="form-error" role="alert">{error}</div>}
+    <section className="dashboard-section"><div className="dashboard-section-heading"><div><h2>Saldos actuales</h2><p>Las monedas se mantienen separadas por cuenta.</p></div></div><div className="dashboard-account-grid">{!ready? <div className="dashboard-loading">Cargando saldos locales…</div>:accountSummaries.map(({account,balance,income,expense})=><article className="dashboard-account-card" key={account.id}><div className="dashboard-card-head"><span className={`account-icon ${account.currency.toLowerCase()}`}><Wallet size={19}/></span><span className="currency-tag">{account.currency}</span></div><span className="dashboard-account-name">{account.name}</span><strong className="dashboard-balance">{formatMoney(balance,account.currency)}</strong><div className="dashboard-account-flow"><span><ArrowDownLeft size={15}/><small>Ingresos del período</small><strong>{formatMoney(income,account.currency)}</strong></span><span><ArrowUpRight size={15}/><small>Egresos del período</small><strong>{formatMoney(expense,account.currency)}</strong></span></div></article>)}</div></section>
+    <div className="dashboard-lower-grid"><section className="ledger-panel dashboard-contribution-card"><div className="ledger-header"><div><h2>Aportes · {new Date(`${period}-01T12:00:00`).toLocaleDateString('es-VE',{month:'long',year:'numeric'})}</h2><span>Meses con y sin registro entre participantes activos.</span></div><button className="dashboard-link" onClick={()=>setPaymentOpen(true)}>Registrar pago</button></div><div className="dashboard-contribution-body"><div className="dashboard-contribution-counts"><div><span>Con pago</span><strong>{dataReady?contributionSummary.paidCount:'—'}</strong></div><div><span>Sin registro</span><strong>{dataReady?contributionSummary.withoutRecordCount:'—'}</strong></div><div><span>Participantes activos</span><strong>{dataReady?contributionSummary.activeCount:'—'}</strong></div></div><div className="dashboard-currency-totals"><div><span>Recibido en USD</span><strong>{dataReady?formatMoney(contributionSummary.usdReceivedMinor,'USD'):'—'}</strong></div><div><span>Recibido en VES</span><strong>{dataReady?formatMoney(contributionSummary.vesReceivedMinor,'VES'):'—'}</strong></div><div><span>Equivalente USD de pagos VES</span><strong>{dataReady?formatMoney(contributionSummary.vesEquivalentUsdMinor,'USD'):'—'}</strong></div></div>{dataReady&&contributionSummary.activeCount===0&&<div className="dashboard-note">Agrega participantes para empezar a consultar sus aportes.</div>}</div></section>
+      <section className="ledger-panel dashboard-activity-card"><div className="ledger-header"><div><h2>Actividad reciente</h2><span>Últimos movimientos y pagos.</span></div><Activity size={19} className="dashboard-activity-icon"/></div>{!ready||!dataReady?<div className="dashboard-activity-empty">Cargando actividad…</div>:activity.length===0?<div className="dashboard-activity-empty"><span className="empty-icon"><BookOpen size={21}/></span><strong>Aún no hay actividad</strong><span>Registra un movimiento o aporte para verlo aquí.</span></div>:<div className="dashboard-activity-list">{activity.map((item)=><div className="dashboard-activity-row" key={`${item.kind}:${item.id}`}><span className={`activity-symbol ${item.kind}`}>{item.kind==='income'?<ArrowDownLeft size={16}/>:item.kind==='expense'?<ArrowUpRight size={16}/>:item.kind==='contribution'?<HandCoins size={16}/>:<X size={16}/>}</span><span className="activity-description"><strong>{item.title}</strong><small>{item.detail} · {new Date(`${item.date}T12:00:00`).toLocaleDateString('es-VE',{day:'2-digit',month:'short'})}</small></span><strong className={`activity-amount ${item.kind}`}>{item.kind==='income'?'+':item.kind==='expense'?'−':''}{formatMoney(item.amount,item.currency)}</strong></div>)}</div>}</section></div>
+    {paymentOpen&&<ContributionPaymentModal initialPeriods={[]} onClose={()=>setPaymentOpen(false)} onSaved={async()=>{await refresh();setPaymentOpen(false)}}/>}
+  </>
 }
 
 function ContributionsPage() {

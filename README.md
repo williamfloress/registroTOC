@@ -23,7 +23,7 @@ Aplicación web local-first para llevar el libro financiero y controlar los apor
 
 El panel principal mostrará los saldos actuales de USD efectivo, VES efectivo y VES banco sin sumar monedas diferentes. También presentará ingresos y egresos del período por cuenta, actividad reciente y accesos rápidos para registrar movimientos y aportes. Cuando no existan registros, mostrará indicaciones para empezar, sin datos ficticios.
 
-**Estado:** pendiente.
+**Estado:** implementación inicial disponible. Muestra los saldos actuales por cuenta, ingresos y egresos del período sin combinar monedas, resumen mensual de aportes y actividad reciente. Incluye accesos rápidos a los formularios de movimiento y aporte.
 
 ### 2. Libro financiero
 

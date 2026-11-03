@@ -73,3 +73,5 @@ td{font-size:14px;padding:14px 12px}
   .row-actions{opacity:1}
   .row-actions button{font-size:13px}
 }
+.inactive-person-label{display:block;color:#62695f;font-size:12px}
+.inactive-row-action{color:#62695f;font-size:13px}

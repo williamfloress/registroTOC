@@ -1,11 +1,14 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { FinancialAccount, FinancialMovement, ObligationSchedule, Participant, ParticipantInput } from '../domain/finance'
+import type { Contribution, ContributionBatch, ContributionHistory, FinancialAccount, FinancialMovement, ObligationSchedule, Participant, ParticipantInput } from '../domain/finance'
 
 class ReportesDatabase extends Dexie {
   accounts!: EntityTable<FinancialAccount, 'id'>
   movements!: EntityTable<FinancialMovement, 'id'>
   participants!: EntityTable<Participant, 'id'>
   obligations!: EntityTable<ObligationSchedule, 'id'>
+  paymentBatches!: EntityTable<ContributionBatch, 'id'>
+  contributions!: EntityTable<Contribution, 'id'>
+  contributionHistory!: EntityTable<ContributionHistory, 'id'>
 
   constructor() {
     super('reportesTOC')
@@ -21,6 +24,15 @@ class ReportesDatabase extends Dexie {
         id: 'obligation-2000-01', effectiveMonth: '2000-01', amountUsdMinor: 100,
         createdAt: timestamp, updatedAt: timestamp,
       })
+    })
+    this.version(3).stores({
+      accounts: 'id, currency, active',
+      movements: 'id, accountId, date, type, [accountId+date]',
+      participants: 'id, active, [lastName+firstName]',
+      obligations: 'id, effectiveMonth',
+      paymentBatches: 'id, participantId, paymentDate, currency, status',
+      contributions: 'id, participantId, [participantId+year+month], year, month, paymentBatchId',
+      contributionHistory: 'id, participantId, [participantId+year+month], year, month, paymentBatchId, voidedAt',
     })
   }
 }

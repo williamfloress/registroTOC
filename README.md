@@ -2,7 +2,7 @@
 
 Aplicación web local-first para llevar el libro financiero y controlar los aportes mensuales de la Tercera Orden Carmelita (TOC). Está pensada para simplificar el registro administrativo con una interfaz clara en español y conservar la información en el dispositivo.
 
-> **Estado:** MVP en desarrollo incremental. Están implementadas la fundación, el libro financiero inicial y la gestión de participantes/obligaciones. Las secciones de este documento describen el alcance previsto del MVP completo; los módulos aún no disponibles se identifican como pendientes.
+> **Estado:** MVP en desarrollo incremental. Están implementadas la fundación, el libro financiero, el padrón y una primera versión del control de aportes. Las secciones de este documento describen el alcance previsto del MVP completo; los módulos aún no disponibles se identifican como pendientes.
 
 ## Descripción corta para GitHub
 
@@ -56,7 +56,7 @@ Cada participante tendrá identificador, nombres, apellidos, estado activo/inact
 - Los aportes y el libro financiero serán módulos independientes: registrar un aporte no creará automáticamente un movimiento de caja.
 - Los resúmenes mantendrán los montos en USD y VES separados; cualquier equivalente informativo en USD usará las tasas guardadas en cada pago.
 
-**Estado:** configuración inicial disponible. La obligación predeterminada es 1 USD por participante al mes; se pueden programar, corregir o retirar vigencias futuras sin modificar las vigencias actuales o históricas. La integración de la obligación con pagos mensuales se completará en la fase de aportes.
+**Estado:** implementación inicial disponible. Incluye matriz anual, filtros por año/persona/estado/mes, pagos individuales y agrupados en USD o VES, tasa manual histórica, redondeo por mes, detalle, historial y anulación de lotes conservando el rastro. La tabla de pagos impide duplicar participante/año/mes. El registro de aportes no crea movimientos financieros.
 
 ### 5. Reportes
 
@@ -80,7 +80,7 @@ El MVP completo tendrá exportación e importación de respaldo JSON versionado.
 
 La aplicación ofrecerá configuración de cuentas y obligaciones futuras, solicitará almacenamiento persistente del navegador cuando esté disponible y podrá instalarse como PWA. Un service worker permitirá volver a abrirla sin conexión después de la primera carga.
 
-**Estado:** la base local solicita almacenamiento persistente cuando el navegador lo soporta. PWA, service worker, modo offline y configuración completa siguen pendientes.
+**Estado:** la base local solicita almacenamiento persistente cuando el navegador lo soporta. PWA, service worker y modo offline siguen pendientes.
 
 ## Modelo monetario y reglas de integridad
 
@@ -130,11 +130,12 @@ La prueba actual cubre cálculos de saldo, separación de cuentas, apertura y ci
 ## Hoja de ruta del MVP
 
 1. **Fundación y libro financiero:** implementados en su versión inicial; faltan filtros de rango y aceptación de persistencia en navegador.
-2. **Participantes y obligaciones:** implementación inicial disponible; falta revisión visual/interactiva en navegador. **Aportes:** matriz anual, pagos USD/VES, tasas históricas, lotes atrasados y prevención de duplicados siguen pendientes.
-3. **Resumen:** saldos por cuenta, movimiento del período, aportes y actividad reciente.
-4. **Reportes:** exportaciones PDF y Excel para el libro y los aportes.
-5. **Respaldo:** JSON versionado, validación, restauración transaccional y recordatorios.
-6. **PWA y aceptación:** funcionamiento offline, instalación, pruebas Playwright y validación con usuarios.
+2. **Participantes y obligaciones:** implementación inicial disponible; falta revisión visual/interactiva en navegador.
+3. **Aportes:** implementación inicial disponible; cubre pagos agrupados de meses atrasados en uno o varios años, conversión histórica en VES, duplicados y anulaciones con historial. Build y pruebas unitarias pasan; queda la revisión visual/interactiva en navegador.
+4. **Resumen:** saldos por cuenta, movimiento del período, aportes y actividad reciente.
+5. **Reportes:** exportaciones PDF y Excel para el libro y los aportes.
+6. **Respaldo:** JSON versionado, validación, restauración transaccional y recordatorios.
+7. **PWA y aceptación:** funcionamiento offline, instalación, pruebas Playwright y validación con usuarios.
 
 ## Fuera del MVP
 

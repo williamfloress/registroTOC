@@ -1,0 +1,2 @@
+.install-button{min-height:34px;padding:7px 10px;font-size:12px;white-space:nowrap}.offline-pill.offline{color:#a24135}.offline-pill.offline i{background:#c05b4e}.local-card{line-height:1.35}.local-card span+span{margin-top:5px}.backup-panel .callout svg{flex:none}
+@media(max-width:560px){.install-button{padding:7px;font-size:0;gap:0}.install-button svg{width:17px;height:17px}.topbar-right{gap:10px}}

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Activity, ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, CircleHelp, FileBarChart2, HandCoins, LayoutDashboard, ListFilter, Menu, Plus, Search, Settings2, ShieldCheck, Users, Wallet, X } from 'lucide-react'
+import { Activity, ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, CircleHelp, Download, FileBarChart2, HandCoins, LayoutDashboard, ListFilter, Menu, Plus, Search, Settings2, ShieldCheck, Users, Wallet, X } from 'lucide-react'
 import { balanceAt, contributionPaymentSchema, convertUsdMinorToVesMinor, convertVesMinorToUsdMinor, formatMoney, movementSchema, obligationSchema, participantSchema, parseAmountToMinor, summarizePeriod, type Contribution, type ContributionBatch, type ContributionPeriod, type FinancialAccount, type FinancialMovement, type MovementType, type ObligationSchedule, type Participant } from '../../domain/finance'
 import { ensureInitialAccounts, ensureInitialObligations, financeRepository, obligationRepository, participantRepository } from '../../infrastructure/database'
 import { contributionRepository } from '../../infrastructure/contributions'
 import { summarizeContributionMonth } from '../../domain/dashboard'
 import ReportsPage from './ReportsPage'
 import BackupPage from './BackupPage'
+import { requestStoragePersistence, type StoragePersistence } from '../../pwa'
 import './participants.css'
 import './contributions.css'
 import './dashboard.css'
@@ -20,6 +21,7 @@ const monthEnd = (month: string) => `${month}-${new Date(Number(month.slice(0, 4
 const todayLocal = () => { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}` }
 const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 const periodKey = ({year,month}: ContributionPeriod) => `${year}-${String(month).padStart(2,'0')}`
+type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: 'accepted'|'dismissed'; platform: string }> }
 
 export default function App() {
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
@@ -33,12 +35,29 @@ export default function App() {
   const [selected, setSelected] = useState<FinancialMovement | null>(null)
   const [mobileNav, setMobileNav] = useState(false)
   const [notice, setNotice] = useState('')
+  const [storageProtection, setStorageProtection] = useState<StoragePersistence>('checking')
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent|null>(null)
+  const [offline, setOffline] = useState(!navigator.onLine)
+  const [offlineReady, setOfflineReady] = useState(false)
 
   async function refresh() {
     const [a, m] = await Promise.all([financeRepository.accounts(), financeRepository.movements()])
     setAccounts(a); setMovements(m); setReady(true)
   }
-  useEffect(() => { Promise.all([ensureInitialAccounts(), ensureInitialObligations()]).then(async () => { await refresh(); if (navigator.storage?.persist) void navigator.storage.persist() }).catch(() => setNotice('No fue posible abrir la base local. Revisa la configuración de privacidad del navegador.')) }, [])
+  useEffect(() => { Promise.all([ensureInitialAccounts(), ensureInitialObligations()]).then(async () => { await refresh(); setStorageProtection(await requestStoragePersistence()) }).catch(() => setNotice('No fue posible abrir la base local. Revisa la configuración de privacidad del navegador.')) }, [])
+  useEffect(() => {
+    const onInstall = (event: Event) => { event.preventDefault(); setInstallPrompt(event as InstallPromptEvent) }
+    const onInstalled = () => { setInstallPrompt(null); notify('Aplicación instalada en este dispositivo') }
+    const onOnline = () => setOffline(false)
+    const onOffline = () => setOffline(true)
+    const onOfflineReady = () => setOfflineReady(true)
+    window.addEventListener('beforeinstallprompt', onInstall)
+    window.addEventListener('appinstalled', onInstalled)
+    window.addEventListener('online', onOnline)
+    window.addEventListener('offline', onOffline)
+    window.addEventListener('pwa-offline-ready', onOfflineReady)
+    return () => { window.removeEventListener('beforeinstallprompt', onInstall); window.removeEventListener('appinstalled', onInstalled); window.removeEventListener('online', onOnline); window.removeEventListener('offline', onOffline); window.removeEventListener('pwa-offline-ready', onOfflineReady) }
+  }, [])
 
   const periodStart = monthStart(period)
   const periodEnd = monthEnd(period)
@@ -55,17 +74,19 @@ export default function App() {
     await financeRepository.removeMovement(movement.id); await refresh(); setNotice('Movimiento eliminado')
   }
   function notify(message: string) { setNotice(message); window.setTimeout(() => setNotice(''), 3500) }
+  async function installApp() { if (!installPrompt) return; await installPrompt.prompt(); const choice=await installPrompt.userChoice; setInstallPrompt(null); if(choice.outcome==='accepted') notify('La instalación se inició') }
+  const persistenceMessage = storageProtection === 'persistent' ? 'Almacenamiento persistente concedido' : storageProtection === 'best-effort' ? 'El navegador podría borrar estos datos' : storageProtection === 'unsupported' ? 'Este navegador no informa su protección' : 'Comprobando protección del navegador…'
 
   return <div className="app-shell">
     <aside className={`sidebar ${mobileNav ? 'sidebar-open' : ''}`}>
       <div className="brand"><div className="brand-mark">T</div><div><strong>reportesTOC</strong><small>Tercera Orden Carmelita</small></div><button className="icon-button close-nav" onClick={() => setMobileNav(false)} aria-label="Cerrar menú"><X size={18}/></button></div>
       <div className="workspace-label">ADMINISTRACIÓN</div>
       <nav>{links.map(({ label, icon: Icon }) => <button key={label} className={`nav-link ${activePage === label ? 'active' : ''}`} onClick={() => { setActivePage(label); setMobileNav(false) }}><Icon size={18}/><span>{label}</span>{label === 'Libro financiero' && <span className="nav-current"/>}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="local-card"><ShieldCheck size={17}/><div><strong>Datos en este dispositivo</strong><span>Guardado local · sin conexión</span></div></div><button className="help-link" onClick={() => notify('Los datos se guardan en IndexedDB de este navegador. Exportación de respaldo pendiente.') }><CircleHelp size={17}/> Ayuda y privacidad</button></div>
+      <div className="sidebar-bottom"><div className="local-card"><ShieldCheck size={17}/><div><strong>Solo en este navegador</strong><span>{persistenceMessage}</span><span>{offlineReady?'Recursos sin conexión listos':'Preparando acceso sin conexión…'}</span><span>Haz respaldos externos con frecuencia.</span></div></div><button className="help-link" onClick={() => { setActivePage('Respaldo'); notify('Tus datos no se sincronizan. El navegador puede eliminarlos; guarda una copia JSON externa.') }}><CircleHelp size={17}/> Ayuda y privacidad</button></div>
     </aside>
     {mobileNav && <button className="scrim" onClick={() => setMobileNav(false)} aria-label="Cerrar navegación"/>}
     <main className="main-area">
-      <header className="topbar"><button className="icon-button mobile-menu" onClick={() => setMobileNav(true)} aria-label="Abrir menú"><Menu size={20}/></button><div className="breadcrumb">Inicio <span>/</span> <strong>{currentPage}</strong></div><div className="topbar-right"><span className="offline-pill"><i/> Guardado local</span><div className="avatar">TO</div></div></header>
+      <header className="topbar"><button className="icon-button mobile-menu" onClick={() => setMobileNav(true)} aria-label="Abrir menú"><Menu size={20}/></button><div className="breadcrumb">Inicio <span>/</span> <strong>{currentPage}</strong></div><div className="topbar-right">{installPrompt&&<button className="button install-button" onClick={()=>void installApp()}><Download size={15}/> Instalar</button>}<span className={`offline-pill ${offline?'offline':''}`}><i/> {offline?'Sin conexión':'Solo en este dispositivo'}</span><div className="avatar">TO</div></div></header>
       <div className="page-content">
         {activePage === 'Resumen' ? <DashboardPage accounts={accounts} movements={movements} ready={ready} onNewMovement={() => { setSelected(null); setAccountId('all'); setModal('new') }} /> : activePage === 'Libro financiero' ? <>
           <div className="page-heading"><div><div className="eyebrow">GESTIÓN FINANCIERA</div><h1>Libro financiero</h1><p>Controla los ingresos y egresos de cada cuenta.</p></div><button className="button primary" onClick={() => { setSelected(null); setModal('new') }}><Plus size={17}/> Nuevo movimiento</button></div>

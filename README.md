@@ -2,7 +2,7 @@
 
 Aplicación web local-first para llevar el libro financiero y controlar los aportes mensuales de la Tercera Orden Carmelita (TOC). Está pensada para simplificar el registro administrativo con una interfaz clara en español y conservar la información en el dispositivo.
 
-> **Estado:** MVP en desarrollo incremental. Están implementados el resumen, el libro financiero, el padrón, los aportes y los reportes PDF/Excel. El respaldo JSON y la PWA continúan pendientes.
+> **Estado:** MVP en desarrollo incremental. Están implementados el resumen, el libro financiero, el padrón, los aportes, los reportes PDF/Excel, el respaldo JSON y el shell PWA. La aceptación offline en navegador y dispositivos reales, las pruebas E2E y la definición del dominio de producción siguen pendientes.
 
 ## Descripción corta para GitHub
 
@@ -13,7 +13,7 @@ Aplicación web local-first para llevar el libro financiero y controlar los apor
 - Reemplazar los registros en cuadernos del libro financiero y del control mensual de aportes.
 - Hacer que las tareas comunes sean sencillas para personas con poca experiencia informática.
 - Mantener separados los saldos de USD y VES y conservar las tasas de cambio históricas.
-- Guardar los datos localmente y permitir trabajar sin conexión una vez instalada la PWA (función pendiente).
+- Guardar los datos localmente y permitir trabajar sin conexión después de la primera carga de la PWA.
 - Facilitar la exportación de reportes y la creación de respaldos portables.
 - Mantener la lógica de negocio independiente del navegador para permitir una futura versión de escritorio.
 
@@ -74,13 +74,13 @@ Los documentos mostrarán fechas, formatos numéricos, encabezados y totales ade
 
 El MVP completo tendrá exportación e importación de respaldo JSON versionado. Antes de restaurar, validará estructura e integridad referencial, mostrará un resumen y pedirá confirmación. La restauración reemplazará los datos dentro de una transacción para evitar importaciones parciales. También mostrará la fecha del último respaldo y recordatorios periódicos.
 
-**Estado:** pendiente.
+**Estado:** implementado. Exporta la base completa en JSON versionado, valida estructura y relaciones, muestra los registros incluidos antes de importar y reemplaza la base en una transacción tras confirmación.
 
 ### 7. Configuración y PWA
 
-La aplicación ofrecerá configuración de cuentas y obligaciones futuras, solicitará almacenamiento persistente del navegador cuando esté disponible y podrá instalarse como PWA. Un service worker permitirá volver a abrirla sin conexión después de la primera carga.
+La aplicación puede instalarse como PWA cuando el navegador lo admite. Un service worker cachea la aplicación y los recursos cargados para volver a abrirla sin conexión. La app solicita almacenamiento persistente cuando está disponible e informa si el navegador lo concede.
 
-**Estado:** la base local solicita almacenamiento persistente cuando el navegador lo soporta. PWA, service worker y modo offline siguen pendientes.
+**Estado:** implementado. Manifest, iconos y service worker están incluidos. La interfaz permite iniciar la instalación cuando el navegador expone el aviso y comunica el estado de caché offline y almacenamiento persistente. La validación manual en navegadores reales sigue pendiente.
 
 ## Modelo monetario y reglas de integridad
 
@@ -105,7 +105,7 @@ La aplicación ofrecerá configuración de cuentas y obligaciones futuras, solic
 
 ## Privacidad y límites de almacenamiento
 
-Los registros financieros se guardan en IndexedDB del navegador; la aplicación no los envía a un servidor. La base está aislada por origen, perfil del navegador y dispositivo. Borrar los datos del sitio, cambiar de navegador/perfil o cambiar el dominio puede dejar los registros inaccesibles. En equipos compartidos, los datos locales pueden estar disponibles para otras personas con acceso al mismo perfil. El respaldo externo será necesario antes de guardar información real hasta que se implemente la función JSON.
+Los registros financieros se guardan en IndexedDB del navegador; la aplicación no los envía a un servidor. La base está aislada por origen, perfil del navegador y dispositivo. Borrar los datos del sitio, cambiar de navegador/perfil o cambiar el dominio puede dejar los registros inaccesibles. En equipos compartidos, los datos locales pueden estar disponibles para otras personas con acceso al mismo perfil. La persistencia del navegador no garantiza disponibilidad indefinida: descarga y guarda respaldos JSON externos con frecuencia.
 
 No se incluye sincronización entre dispositivos ni control de acceso. El alojamiento estático entrega la aplicación, pero no guarda los datos financieros.
 
@@ -125,7 +125,7 @@ pnpm test
 pnpm build
 ```
 
-La prueba actual cubre cálculos de saldo, separación de cuentas, apertura y cierre de período, orden estable e interpretación de importes. La cobertura de persistencia/reinicio y las pruebas end-to-end se añadirán en sus respectivas etapas.
+`pnpm test` cubre cálculos financieros, aportes, respaldos y solicitud de almacenamiento persistente. `pnpm build` genera el sitio de producción con manifest y service worker. Las pruebas end-to-end con Playwright y la prueba manual offline en navegadores reales siguen pendientes.
 
 ## Hoja de ruta del MVP
 
@@ -135,7 +135,7 @@ La prueba actual cubre cálculos de saldo, separación de cuentas, apertura y ci
 4. **Resumen:** saldos por cuenta, movimiento del período, aportes y actividad reciente.
 5. **Reportes:** exportaciones PDF y Excel para el libro y los aportes.
 6. **Respaldo:** JSON versionado, validación, restauración transaccional y recordatorios.
-7. **PWA y aceptación:** funcionamiento offline, instalación, pruebas Playwright y validación con usuarios.
+7. **PWA y aceptación:** soporte PWA implementado; falta validar offline e instalación en navegadores/dispositivos reales, añadir pruebas Playwright, revisar con usuarios y definir el dominio HTTPS de producción.
 
 ## Fuera del MVP
 

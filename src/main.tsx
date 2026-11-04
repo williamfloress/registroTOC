@@ -4,6 +4,10 @@ import App from './modules/finance/App'
 import './styles.css'
 import './accessible.css'
 import './theme.css'
+import './pwa.css'
+import { registerServiceWorker } from './pwa'
+
+registerServiceWorker()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode><App /></React.StrictMode>,

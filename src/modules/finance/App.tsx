@@ -5,6 +5,7 @@ import { ensureInitialAccounts, ensureInitialObligations, financeRepository, obl
 import { contributionRepository } from '../../infrastructure/contributions'
 import { summarizeContributionMonth } from '../../domain/dashboard'
 import ReportsPage from './ReportsPage'
+import BackupPage from './BackupPage'
 import './participants.css'
 import './contributions.css'
 import './dashboard.css'
@@ -78,7 +79,7 @@ export default function App() {
             })}</tbody></table></div>
             <div className="ledger-footer">{summaries.map((s) => <div key={s.account.id} className="footer-account"><span>{s.account.name} · saldo inicial {formatMoney(s.opening,s.account.currency)}</span><strong>Saldo final: {formatMoney(s.closing,s.account.currency)}</strong></div>)}</div>
           </section>
-        </> : activePage === 'Participantes' ? <ParticipantsPage /> : activePage === 'Aportes mensuales' ? <ContributionsPage /> : activePage === 'Reportes' ? <ReportsPage /> : <Placeholder page={activePage} onGo={() => setActivePage('Libro financiero')} />}
+        </> : activePage === 'Participantes' ? <ParticipantsPage /> : activePage === 'Aportes mensuales' ? <ContributionsPage /> : activePage === 'Reportes' ? <ReportsPage /> : activePage === 'Respaldo' ? <BackupPage /> : <Placeholder page={activePage} onGo={() => setActivePage('Libro financiero')} />}
         <footer className="page-footer">reportesTOC <span>·</span> Versión inicial local <span>·</span> Sin conexión requerida</footer>
       </div>
     </main>

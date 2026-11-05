@@ -2,76 +2,110 @@
 body{line-height:1.5}
 button,input,select,textarea{font-size:inherit}
 :focus-visible{outline:3px solid #466a47;outline-offset:2px}
-.brand strong{font-size:17px}
-.brand small{font-size:13px;color:#62695f}
-.workspace-label,.eyebrow{font-size:12px;letter-spacing:.8px}
-.nav-link{min-height:46px;font-size:15px}
-.local-card strong{font-size:13px}
-.local-card span,.help-link{font-size:12px}
-.breadcrumb{font-size:14px}
-.offline-pill{font-size:13px}
-.avatar{font-size:12px}
-.page-heading h1,.placeholder-page h1{font-size:30px}
-.page-heading p{font-size:15px}
-.button{min-height:44px;padding:10px 15px;font-size:14px}
-.account-name{font-size:14px}
-.account-balance{font-size:23px}
-.account-meta{font-size:13px}
-.account-meta button{min-height:38px;font-size:13px}
-.currency-tag{font-size:12px}
-.summary-title{font-size:14px}
-.month-picker input{font-size:14px;min-height:40px}
-.summary-item>span{font-size:13px}
-.income-text,.expense-text{font-size:13px}
-.ledger-header h2{font-size:17px}
-.ledger-header>div:first-child>span{font-size:13px}
+.brand strong{font-size:19px}
+.brand small{font-size:16px;color:#4e534b}
+.workspace-label,.eyebrow{font-size:15px;letter-spacing:.8px}
+.nav-link{min-height:46px;font-size:17px}
+.local-card strong{font-size:16px}
+.local-card span,.help-link{font-size:15px}
+.breadcrumb{font-size:17px}
+.offline-pill{font-size:16px}
+.avatar{font-size:15px}
+.page-heading h1,.placeholder-page h1{font-size:32px}
+.page-heading p{font-size:17px}
+.button{min-height:44px;padding:10px 15px;font-size:17px}
+.account-name{font-size:17px}
+.account-balance{font-size:25px}
+.account-meta{font-size:16px}
+.account-meta button{min-height:38px;font-size:16px}
+.currency-tag{font-size:15px}
+.summary-title{font-size:17px}
+.month-picker input{font-size:17px;min-height:40px}
+.summary-item>span{font-size:16px}
+.income-text,.expense-text{font-size:16px}
+.ledger-header h2{font-size:19px}
+.ledger-header>div:first-child>span{font-size:16px}
 .select-wrap,.search-box{min-height:42px}
-.select-wrap select,.search-box input{font-size:13px}
-th{font-size:12px;padding:13px 12px}
-td{font-size:14px;padding:14px 12px}
-.date-cell,.account-chip{font-size:12px}
-.concept-cell strong{font-size:14px}
-.concept-cell small{font-size:12px}
+.select-wrap select,.search-box input{font-size:16px}
+th{font-size:15px;padding:13px 12px}
+td{font-size:17px;padding:14px 12px}
+.date-cell,.account-chip{font-size:15px}
+.concept-cell strong{font-size:17px}
+.concept-cell small{font-size:15px}
 .type-mark{width:32px;height:32px}
 .account-chip{padding:5px 8px}
-.balance-cell{font-size:14px}
+.balance-cell{font-size:17px}
 .row-actions{opacity:1;gap:7px}
-.row-actions button,.participant-actions button,.upcoming-row button{min-height:38px;padding:6px;color:#425c40;font-size:12px}
-.empty-state strong{font-size:15px}
-.empty-state>span:not(.empty-icon){font-size:13px}
+.row-actions button,.participant-actions button,.upcoming-row button{min-height:38px;padding:6px;color:#3f583d;font-size:15px}
+.empty-state strong{font-size:17px}
+.empty-state>span:not(.empty-icon){font-size:16px}
 .empty-icon{width:48px;height:48px}
-.footer-account{font-size:12px}
-.footer-account strong{font-size:13px}
-.page-footer{font-size:12px}
-.modal-heading h2{font-size:22px}
-.field-label{font-size:14px}
-.field-label>input,.field-label>select,.field-label>textarea{min-height:46px;font-size:15px;padding:10px 12px}
+.footer-account{font-size:15px}
+.footer-account strong{font-size:16px}
+.page-footer{font-size:15px}
+.modal-heading h2{font-size:24px}
+.field-label{font-size:17px}
+.field-label>input,.field-label>select,.field-label>textarea{min-height:46px;font-size:17px;padding:10px 12px}
 .field-label>textarea{min-height:auto}
-.segmented button{min-height:44px;font-size:14px}
-.optional{font-size:13px}
-.callout{font-size:13px}
-.form-error{font-size:13px}
-.toast{font-size:14px}
-.participant-summary>div:nth-child(2)>span,.participant-summary>div:nth-child(4)>span{font-size:13px}
-.participant-summary>div:nth-child(2)>strong{font-size:20px}
-.participant-summary>div:nth-child(4)>strong{font-size:17px}
-.participant-summary small{font-size:12px}
-.person-name strong{font-size:14px}
-.person-avatar{width:34px;height:34px;font-size:11px}
-.status-badge{font-size:12px;padding:5px 8px}
-.participant-notes{font-size:13px}
-.upcoming-title{font-size:12px}
-.upcoming-row{font-size:14px;padding:11px 2px}
-.obligation-form-footer>span{font-size:12px}
-.obligation-form-footer .button{font-size:13px;min-height:42px}
+.segmented button{min-height:44px;font-size:17px}
+.optional{font-size:16px}
+.callout{font-size:16px}
+.form-error{font-size:16px}
+.toast{font-size:17px}
+.participant-summary>div:nth-child(2)>span,.participant-summary>div:nth-child(4)>span{font-size:16px}
+.participant-summary>div:nth-child(2)>strong{font-size:22px}
+.participant-summary>div:nth-child(4)>strong{font-size:19px}
+.participant-summary small{font-size:15px}
+.person-name strong{font-size:17px}
+.person-avatar{width:34px;height:34px;font-size:15px}
+.status-badge{font-size:15px;padding:5px 8px}
+.participant-notes{font-size:16px}
+.upcoming-title{font-size:15px}
+.upcoming-row{font-size:17px;padding:11px 2px}
+.obligation-form-footer>span{font-size:15px}
+.obligation-form-footer .button{font-size:16px;min-height:42px}
 @media(max-width:560px){
   :root{font-size:16px}
-  .page-heading h1,.placeholder-page h1{font-size:27px}
-  .account-balance{font-size:22px}
+  .page-heading h1,.placeholder-page h1{font-size:29px}
+  .account-balance{font-size:24px}
   .offline-pill{font-size:0}
   .offline-pill i{width:9px;height:9px}
   .row-actions{opacity:1}
-  .row-actions button{font-size:13px}
+  .row-actions button{font-size:16px}
 }
-.inactive-person-label{display:block;color:#62695f;font-size:12px}
-.inactive-row-action{color:#62695f;font-size:13px}
+.inactive-person-label{display:block;color:#4e534b;font-size:15px}
+.inactive-row-action{color:#4e534b;font-size:16px}
+
+.brand-mark{width:44px;height:44px;border-radius:0;background:transparent;object-fit:contain;display:block}
+
+/* Mayor legibilidad: barra lateral más ancha y texto fuerte */
+.sidebar{width:290px}
+.main-area{margin-left:290px}
+@media(max-width:1050px){.sidebar{width:260px}.main-area{margin-left:260px}}
+@media(max-width:780px){.sidebar{width:300px;max-width:88vw}.main-area{margin-left:0}}
+.nav-link{color:#2f352d;font-size:17px}
+.nav-link.active{color:#1f3a22}
+.page-heading h1,.placeholder-page h1,.ledger-header h2,.dashboard-section-heading h2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* Icono de información con ayuda al pasar el cursor */
+.info-tip{position:relative;display:inline-flex;vertical-align:middle}
+.info-tip-btn{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:transparent;color:#2f5a33}
+.info-tip-btn:hover,.info-tip.open .info-tip-btn{background:#e6efe3}
+.info-tip-bubble{position:absolute;z-index:40;left:0;top:calc(100% + 6px);width:max-content;max-width:min(340px,80vw);padding:12px 14px;border-radius:8px;background:#1f2a20;color:#fff;font-size:16px;font-weight:400;letter-spacing:0;line-height:1.45;text-align:left;box-shadow:0 6px 22px #0003;visibility:hidden;opacity:0;transition:opacity .12s}
+.info-tip:hover .info-tip-bubble,.info-tip:focus-within .info-tip-bubble,.info-tip.open .info-tip-bubble{visibility:visible;opacity:1}
+@media(min-width:561px){.install-button{font-size:16px}}
+.dashboard-section-heading h2{font-weight:700;color:#1f2a20}
+.dashboard-section-heading p,.rate-card small{color:#3f453d}
+
+/* Evita que se corten los selectores de fecha y filtros con texto grande */
+.month-picker input{width:auto;min-width:10.5em;padding-right:4px}
+.month-picker svg{display:none}
+.contribution-filters{grid-template-columns:120px minmax(190px,1fr) minmax(150px,1fr) minmax(190px,1fr)}
+.contribution-filters select,.contribution-filters input{min-width:0;text-overflow:ellipsis}
+@media(max-width:1100px){.contribution-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Pie del libro: solo el saldo final por cuenta */
+.ledger-footer{display:flex;align-items:center;justify-content:flex-start;gap:12px 32px;padding:16px 18px}
+.footer-title{font-weight:700;font-size:16px;color:#1f2a20;margin-right:auto}
+.footer-account{display:grid;gap:2px;font-size:15px;color:#3f453d}
+.footer-account strong{font-size:18px;color:#1f2a20}

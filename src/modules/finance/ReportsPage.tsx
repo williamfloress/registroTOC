@@ -7,6 +7,7 @@ import { financeRepository, participantRepository } from '../../infrastructure/d
 import { exportContributionsExcel, exportFinanceExcel } from '../../infrastructure/exports/excel'
 import { exportContributionsPdf, exportFinancePdf } from '../../infrastructure/exports/pdf'
 import './reports.css'
+import InfoTip from './InfoTip'
 
 type ReportKind = 'book' | 'contributions'
 type RangeKind = 'month' | 'year' | 'range' | 'all'
@@ -72,7 +73,7 @@ export default function ReportsPage() {
   }
 
   return <>
-    <div className="page-heading"><div><div className="eyebrow">DOCUMENTOS Y CIERRES</div><h1>Reportes</h1><p>Prepara documentos imprimibles con los datos guardados en este dispositivo.</p></div></div>
+    <div className="page-heading"><div><div className="eyebrow">DOCUMENTOS Y CIERRES</div><h1>Reportes <InfoTip text="Prepara documentos imprimibles con los datos guardados en este dispositivo."/></h1></div></div>
     <section className="ledger-panel reports-panel">
       <div className="report-tabs" role="tablist" aria-label="Tipo de reporte">
         <button role="tab" aria-selected={kind === 'book'} className={kind === 'book' ? 'selected' : ''} onClick={() => { setKind('book'); setError(''); setNotice('') }}><FileText size={18}/> Libro financiero</button>

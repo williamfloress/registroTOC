@@ -32,9 +32,9 @@
 .matrix-row-action button:hover,.history-detail-button:hover{background:var(--carmelita-soft);border-color:var(--carmelita-ochre)}
 .contribution-empty{background:#fffaf0;border-color:#d9c48d;color:var(--carmelita-brown)}
 .contribution-empty:hover{background:#f5e8c8;border-color:var(--carmelita-gold);color:var(--carmelita-ink)}
-.contribution-mark.usd{background:var(--carmelita-brown);color:#fff}
+.contribution-mark.usd{background:#dcebd8;color:#1f4a22;border:1px solid #a9c8a3}
 .contribution-mark.ves{background:var(--carmelita-gold);color:var(--carmelita-gold-text)}
-.contribution-mark small{font-size:12px}
+.contribution-mark small{font-size:15px}
 .period-pills button.selected{background:var(--carmelita-gold);border-color:var(--carmelita-gold);color:var(--carmelita-gold-text)}
 .segmented button.selected.usd-selected{background:var(--carmelita-brown);border-color:var(--carmelita-brown);color:#fff}
 .segmented button.selected.ves-selected{background:var(--carmelita-gold);border-color:var(--carmelita-gold);color:var(--carmelita-gold-text)}
@@ -45,3 +45,15 @@
 .danger-button:hover{background:#f7e4e0;color:#75251e;border-color:#bd7467}
 
 ::selection{background:#dfc990;color:var(--carmelita-ink)}
+
+.driver-popover.toc-tour{background:#fff;color:#292d27;border-radius:12px;padding:18px 18px 14px;max-width:340px;border:1px solid #e8eae5;font-family:inherit}
+.toc-tour .driver-popover-title{font-size:18px;font-weight:700;color:#38553b}
+.toc-tour .driver-popover-description{font-size:17px;line-height:1.5;color:#4c534b}
+.toc-tour .driver-popover-progress-text{color:#4f534e;font-size:15px}
+.toc-tour .driver-popover-footer button{border-radius:7px;padding:7px 13px;font-size:16px;font-weight:600;text-shadow:none;border:1px solid #dfe2dc;background:#fff;color:#4c534b}
+.toc-tour .driver-popover-footer button.driver-popover-next-btn{background:#38553b;border-color:#38553b;color:#fff}
+.toc-tour .driver-popover-arrow-side-left.driver-popover-arrow{border-left-color:#fff}
+.toc-tour .driver-popover-arrow-side-right.driver-popover-arrow{border-right-color:#fff}
+.toc-tour .driver-popover-arrow-side-top.driver-popover-arrow{border-top-color:#fff}
+.toc-tour .driver-popover-arrow-side-bottom.driver-popover-arrow{border-bottom-color:#fff}
+.help-link.tour-link{padding-top:6px}

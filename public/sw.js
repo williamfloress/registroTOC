@@ -1,5 +1,5 @@
-const CACHE_NAME = 'reportes-toc-shell-v1'
-const RUNTIME_CACHE = 'reportes-toc-runtime-v1'
+const CACHE_NAME = 'registro-toc-shell-v1'
+const RUNTIME_CACHE = 'registro-toc-runtime-v1'
 const APP_BASE = self.registration.scope
 const INDEX_URL = new URL('index.html', APP_BASE).href
 const APP_SHELL = [APP_BASE, INDEX_URL, new URL('manifest.webmanifest', APP_BASE).href, new URL('icons/icon-64.png', APP_BASE).href, new URL('icons/icon-192.png', APP_BASE).href, new URL('icons/icon-512.png', APP_BASE).href]

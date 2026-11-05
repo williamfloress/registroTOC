@@ -4,7 +4,7 @@ import 'driver.js/dist/driver.css'
 const SEEN_KEY = 'reportesTOC.tourSeen'
 
 const steps: DriveStep[] = [
-  { popover: { title: 'Bienvenido a reportesTOC', description: 'Te mostraremos en un minuto cómo registrar y consultar las cuentas y aportes de la Tercera Orden Carmelita.' } },
+  { popover: { title: 'Bienvenido a registroTOC', description: 'Te mostraremos en un minuto cómo registrar y consultar las cuentas y aportes de la Tercera Orden Carmelita.' } },
   { element: '[data-tour="nav"]', popover: { title: 'Menú de navegación', description: 'Desde aquí pasas entre el libro financiero, los aportes mensuales, los participantes, los reportes y el respaldo.', side: 'right' } },
   { element: '[data-tour="period"]', popover: { title: 'Período', description: 'Elige el mes que quieres consultar. Los ingresos, egresos y aportes se calculan para ese período.', side: 'bottom' } },
   { element: '[data-tour="new-contribution"]', popover: { title: 'Registrar aporte', description: 'Anota el pago de aporte de un participante: mes, monto y forma de pago.', side: 'bottom' } },

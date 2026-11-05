@@ -89,7 +89,7 @@ export default function App() {
 
   return <div className="app-shell">
     <aside className={`sidebar ${mobileNav ? 'sidebar-open' : ''}`}>
-      <div className="brand"><img className="brand-mark" src={escudo} alt="Escudo de la Tercera Orden Carmelita"/><div><strong>reportesTOC</strong><small>{settings.orgName}</small></div><button className="icon-button close-nav" onClick={() => setMobileNav(false)} aria-label="Cerrar menú"><X size={18}/></button></div>
+      <div className="brand"><img className="brand-mark" src={escudo} alt="Escudo de la Tercera Orden Carmelita"/><div><strong>registroTOC</strong><small>{settings.orgName}</small></div><button className="icon-button close-nav" onClick={() => setMobileNav(false)} aria-label="Cerrar menú"><X size={18}/></button></div>
       <div className="workspace-label">ADMINISTRACIÓN</div>
       <nav data-tour="nav">{links.map(({ label, icon: Icon }) => <button key={label} className={`nav-link ${activePage === label ? 'active' : ''}`} onClick={() => { setActivePage(label); setMobileNav(false) }}><Icon size={18}/><span>{label}</span>{label === 'Libro financiero' && <span className="nav-current"/>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="local-card" data-tour="local-card"><ShieldCheck size={17}/><div><strong>Solo en este navegador</strong><span>{persistenceMessage}</span><span>{offlineReady?'Recursos sin conexión listos':'Preparando acceso sin conexión…'}</span><span>Haz respaldos externos con frecuencia.</span></div></div><button className="help-link" onClick={() => { setActivePage('Respaldo'); notify('Tus datos no se sincronizan. El navegador puede eliminarlos; guarda una copia JSON externa.') }}><CircleHelp size={17}/> Ayuda y privacidad</button><button className="help-link tour-link" data-tour="tour-help" onClick={() => { setMobileNav(false); setActivePage('Resumen'); window.setTimeout(startTour, 150) }}><Compass size={17}/> Ver guía de uso</button></div>
@@ -111,7 +111,7 @@ export default function App() {
             <div className="ledger-footer"><span className="footer-title">Saldo al final del período</span>{summaries.map((s) => <div key={s.account.id} className="footer-account" title={`Saldo inicial del período: ${formatMoney(s.opening,s.account.currency)}`}><span>{s.account.name}</span><strong>{formatMoney(s.closing,s.account.currency)}</strong></div>)}</div>
           </section>
         </> : activePage === 'Participantes' ? <ParticipantsPage /> : activePage === 'Aportes mensuales' ? <ContributionsPage /> : activePage === 'Reportes' ? <ReportsPage /> : activePage === 'Respaldo' ? <BackupPage /> : activePage === 'Configuración' ? <SettingsPage accounts={accounts} movements={movements} onOpening={(id) => { setSelected(null); setAccountId(id); setModal('opening') }} onGoSummary={() => setActivePage('Resumen')} /> : <Placeholder page={activePage} onGo={() => setActivePage('Libro financiero')} />}
-        <footer className="page-footer">reportesTOC <span>·</span> Versión inicial local <span>·</span> Sin conexión requerida<a className="footer-credit" href="https://williamflores.vercel.app/" target="_blank" rel="noopener noreferrer">Proyecto realizado por <strong>William Flores</strong></a></footer>
+        <footer className="page-footer">registroTOC <span>·</span> Versión inicial local <span>·</span> Sin conexión requerida<a className="footer-credit" href="https://williamflores.vercel.app/" target="_blank" rel="noopener noreferrer">Proyecto realizado por <strong>William Flores</strong></a></footer>
       </div>
     </main>
     {modal && <MovementModal mode={modal} account={accounts.find((a) => a.id === accountId) ?? accounts[0]} accounts={accounts} movement={selected} onClose={() => setModal(null)} onSaved={async (message) => { await refresh(); setModal(null); notify(message) }}/>}
@@ -120,7 +120,7 @@ export default function App() {
 }
 
 function Placeholder({ page, onGo }: { page: string; onGo: () => void }) {
-  return <div className="placeholder-page"><div className="eyebrow">REPORTESTOC</div><h1>{page}</h1><div className="placeholder-card"><span className="empty-icon"><BookOpen size={22}/></span><h2>Este módulo todavía no está implementado</h2><p>El libro financiero, el padrón y el control de aportes ya están disponibles. Este módulo se añadirá en una fase posterior.</p><button className="button primary" onClick={onGo}>Ir al libro financiero</button></div></div>
+  return <div className="placeholder-page"><div className="eyebrow">REGISTROTOC</div><h1>{page}</h1><div className="placeholder-card"><span className="empty-icon"><BookOpen size={22}/></span><h2>Este módulo todavía no está implementado</h2><p>El libro financiero, el padrón y el control de aportes ya están disponibles. Este módulo se añadirá en una fase posterior.</p><button className="button primary" onClick={onGo}>Ir al libro financiero</button></div></div>
 }
 
 function DashboardPage({accounts,movements,ready,onNewMovement}:{accounts:FinancialAccount[];movements:FinancialMovement[];ready:boolean;onNewMovement:()=>void}){

@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "reportesTOC · Tercera Orden Carmelita",
-  "short_name": "reportesTOC",
+  "name": "registroTOC · Tercera Orden Carmelita",
+  "short_name": "registroTOC",
   "description": "Libro financiero y control de aportes local de la Tercera Orden Carmelita.",
   "lang": "es",
   "start_url": "./",

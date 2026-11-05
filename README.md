@@ -1,4 +1,4 @@
-# reportesTOC
+# registroTOC
 
 Aplicación web local-first para llevar el libro financiero y controlar los aportes mensuales de la Tercera Orden Carmelita (TOC). Está pensada para simplificar el registro administrativo con una interfaz clara en español y conservar la información en el dispositivo.
 

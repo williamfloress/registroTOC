@@ -2,7 +2,7 @@ import type { ContributionReportData } from '../../domain/reports'
 import type { FinanceReportData } from '../../domain/reports'
 
 import { getOrgName } from '../../settings'
-const getTitle = () => `${getOrgName()} · reportesTOC`
+const getTitle = () => `${getOrgName()} · registroTOC`
 const moneyFormat = '#,##0.00;[Red]-#,##0.00'
 
 function saveBlob(blob: Blob, fileName: string) {

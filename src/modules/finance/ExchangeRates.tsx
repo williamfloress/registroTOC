@@ -1,46 +1,29 @@
 import { useEffect, useState } from 'react'
+import { updateSettings, useSettings } from '../../settings'
+import { fetchRates, readRatesCache, type RateSource, type RatesSnapshot } from '../../infrastructure/rates'
 import { Eye, EyeOff, RefreshCw, TrendingUp } from 'lucide-react'
-
-type Rate = { fuente: 'oficial' | 'paralelo'; promedio: number | null; fechaActualizacion: string }
-type Snapshot = { rates: Rate[]; fetchedAt: string }
-
-const API_URL = 'https://ve.dolarapi.com/v1/dolares'
-const CACHE_KEY = 'reportesTOC.rates'
-const VISIBLE_KEY = 'reportesTOC.ratesVisible'
-
-function readCache(): Snapshot | null {
-  try { const raw = localStorage.getItem(CACHE_KEY); return raw ? JSON.parse(raw) as Snapshot : null } catch { return null }
-}
-function writeCache(s: Snapshot) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(s)) } catch { /* sin almacenamiento */ } }
-
-function readVisible() { try { return localStorage.getItem(VISIBLE_KEY) !== '0' } catch { return true } }
 
 const fmt = (n: number) => new Intl.NumberFormat('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 const fmtDate = (iso: string) => new Date(iso).toLocaleString('es-VE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 export default function ExchangeRates() {
-  const [snap, setSnap] = useState<Snapshot | null>(readCache)
+  const [snap, setSnap] = useState<RatesSnapshot | null>(readRatesCache)
   const [loading, setLoading] = useState(false)
   const [failed, setFailed] = useState(false)
-  const [visible, setVisible] = useState(readVisible)
-  function toggle() { const next = !visible; setVisible(next); try { localStorage.setItem(VISIBLE_KEY, next ? '1' : '0') } catch { /* sin almacenamiento */ } }
+  const visible = useSettings().ratesVisible
+  function toggle() { updateSettings({ ratesVisible: !visible }) }
 
   async function load() {
     setLoading(true); setFailed(false)
     try {
-      const res = await fetch(API_URL, { headers: { Accept: 'application/json' } })
-      if (!res.ok) throw new Error(String(res.status))
-      const data = await res.json() as Rate[]
-      const rates = data.filter((r) => (r.fuente === 'oficial' || r.fuente === 'paralelo') && typeof r.promedio === 'number')
-      if (!rates.length) throw new Error('sin datos')
-      const next = { rates, fetchedAt: new Date().toISOString() }
-      setSnap(next); writeCache(next)
+      const next = await fetchRates()
+      setSnap(next)
     } catch { setFailed(true) } finally { setLoading(false) }
   }
   useEffect(() => { if (visible) void load() }, [visible])
 
-  const rate = (f: Rate['fuente']) => snap?.rates.find((r) => r.fuente === f)
-  const items: { key: Rate['fuente']; label: string }[] = [{ key: 'oficial', label: 'Dólar oficial (BCV)' }, { key: 'paralelo', label: 'Dólar paralelo' }]
+  const rate = (f: RateSource) => snap?.rates.find((r) => r.fuente === f)
+  const items: { key: RateSource; label: string }[] = [{ key: 'oficial', label: 'Dólar oficial (BCV)' }, { key: 'paralelo', label: 'Dólar paralelo' }]
 
   return <section className="dashboard-section rates-section" data-tour="rates">
     <div className="dashboard-section-heading"><div><h2>Referencia del dólar</h2></div>

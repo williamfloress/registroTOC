@@ -6,7 +6,9 @@ import './accessible.css'
 import './theme.css'
 import './pwa.css'
 import { registerServiceWorker } from './pwa'
+import { applyTextScale } from './settings'
 
+applyTextScale()
 registerServiceWorker()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

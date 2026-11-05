@@ -47,7 +47,7 @@
 ::selection{background:#dfc990;color:var(--carmelita-ink)}
 
 .driver-popover.toc-tour{background:#fff;color:#292d27;border-radius:12px;padding:18px 18px 14px;max-width:340px;border:1px solid #e8eae5;font-family:inherit}
-.toc-tour .driver-popover-title{font-size:18px;font-weight:700;color:#38553b}
+.toc-tour .driver-popover-title{font-size:18px;font-weight:600;color:#38553b}
 .toc-tour .driver-popover-description{font-size:17px;line-height:1.5;color:#4c534b}
 .toc-tour .driver-popover-progress-text{color:#4f534e;font-size:15px}
 .toc-tour .driver-popover-footer button{border-radius:7px;padding:7px 13px;font-size:16px;font-weight:600;text-shadow:none;border:1px solid #dfe2dc;background:#fff;color:#4c534b}

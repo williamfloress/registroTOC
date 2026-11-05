@@ -3,17 +3,32 @@ import type { ContributionReportData, FinanceReportData } from '../../domain/rep
 import type { jsPDF } from 'jspdf'
 import type { UserOptions } from 'jspdf-autotable'
 
-const org='Tercera Orden Carmelita'
+import { getOrgName, getSettings } from '../../settings'
+import logoUrl from '../../assets/escudo-sm.png'
 const palette={brown:[100,75,15] as [number,number,number],gold:[176,128,12] as [number,number,number],ink:[47,40,22] as [number,number,number],line:[222,212,187] as [number,number,number]}
 const safeName=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()
 const fmtDate=(value:string)=>new Date(`${value}T12:00:00`).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit',year:'numeric'})
 const monthLabel=(year:number,month:number)=>new Date(year,month-1,1).toLocaleDateString('es-VE',{month:'long',year:'numeric'})
 
+let logoData:string|null=null
+async function loadLogo(){
+  if(logoData)return
+  try{
+    const blob=await (await fetch(logoUrl)).blob()
+    logoData=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)})
+  }catch{logoData=null}
+}
+const LOGO_H=22,LOGO_W=LOGO_H*286/360
+
 function drawHeader(doc:jsPDF,title:string,subtitle:string){
   const width=doc.internal.pageSize.getWidth()
-  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...palette.brown);doc.text(org,14,13)
-  doc.setFontSize(15);doc.setTextColor(...palette.ink);doc.text(title,14,22)
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(85,82,73);doc.text(subtitle,14,29)
+  const textX=logoData?14+LOGO_W+4:14
+  if(logoData)doc.addImage(logoData,'PNG',14,10,LOGO_W,LOGO_H)
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...palette.brown);doc.text(getOrgName(),textX,13)
+  doc.setFontSize(15);doc.setTextColor(...palette.ink);doc.text(title,textX,22)
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(85,82,73);doc.text(subtitle,textX,29)
+  const responsible=getSettings().responsible
+  if(responsible){doc.setFontSize(9);doc.setTextColor(...palette.ink);doc.text(`Responsable del informe: ${responsible}`,width-14,13,{align:'right'})}
   doc.setDrawColor(...palette.line);doc.line(14,34,width-14,34)
 }
 function makeTable(doc:jsPDF,autoTable:(doc:jsPDF, options:UserOptions)=>void,options:UserOptions,title:string,subtitle:string){
@@ -37,15 +52,15 @@ function addPageNumbers(doc:jsPDF){
     doc.text(`Página ${page} de ${total}`,doc.internal.pageSize.getWidth()-14,doc.internal.pageSize.getHeight()-6,{align:'right'})
   }
 }
-function addSignatureSpace(doc:jsPDF,startY:number){
+function addSignatureSpace(doc:jsPDF,startY:number,subtitle:string){
   const pageHeight=doc.internal.pageSize.getHeight();let y=startY+12
-  if(y+37>pageHeight-12){doc.addPage();y=45}
-  drawHeader(doc,'Libro de ingresos y egresos','Firmas y observaciones')
+  if(y+37>pageHeight-12){doc.addPage();y=45;drawHeader(doc,'Libro de ingresos y egresos',subtitle)}
   doc.setDrawColor(...palette.ink);doc.setLineWidth(.25)
   const width=doc.internal.pageSize.getWidth();const left=18;const gap=18;const section=(width-left*2-gap*2)/3
   for(let index=0;index<3;index++){
     const x=left+index*(section+gap);doc.line(x,y+14,x+section,y+14)
     doc.setFontSize(8);doc.setTextColor(...palette.ink)
+    if(index===0&&getSettings().responsible)doc.text(getSettings().responsible,x,y+11)
     doc.text(index===0?'Elaborado por':index===1?'Revisado por':'Aprobado por',x,y+19)
   }
   doc.setFont('helvetica','normal');doc.text('Observaciones:',left,y+31)
@@ -53,7 +68,7 @@ function addSignatureSpace(doc:jsPDF,startY:number){
 }
 
 export async function exportFinancePdf(report:FinanceReportData){
-  const [{jsPDF},{autoTable}]=await Promise.all([import('jspdf'),import('jspdf-autotable')])
+  const [{jsPDF},{autoTable}]=await Promise.all([import('jspdf'),import('jspdf-autotable'),loadLogo()]).then(([a,b])=>[a,b] as const)
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'})
   const accounts=report.accounts
   if(!accounts.length){drawHeader(doc,'Libro de ingresos y egresos',report.periodLabel);doc.setFontSize(11);doc.text('No hay cuentas para los filtros seleccionados.',14,48)}
@@ -78,14 +93,14 @@ export async function exportFinancePdf(report:FinanceReportData){
       ],
       footStyles:{fillColor:[247,243,233],textColor:palette.ink,fontStyle:'bold'},
     } as UserOptions)
-    addSignatureSpace(doc,finalY(doc))
+    addSignatureSpace(doc,finalY(doc),subtitle)
   }
   addPageNumbers(doc)
   doc.save(`libro-financiero-${safeName(report.periodLabel)}.pdf`)
 }
 
 export async function exportContributionsPdf(report:ContributionReportData){
-  const [{jsPDF},{autoTable}]=await Promise.all([import('jspdf'),import('jspdf-autotable')])
+  const [{jsPDF},{autoTable}]=await Promise.all([import('jspdf'),import('jspdf-autotable'),loadLogo()]).then(([a,b])=>[a,b] as const)
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'})
   const subtitle=`Período anual: ${report.year} · Participantes: ${report.participants.length}`
   const participantsById=new Map(report.participants.map((person)=>[person.id,person]))
@@ -93,13 +108,19 @@ export async function exportContributionsPdf(report:ContributionReportData){
   drawHeader(doc,'Control anual de aportes',subtitle)
   doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...palette.ink);doc.text('Resumen mensual',14,43)
   const totals=report.months.reduce((sum,item)=>({count:sum.count+item.paidCount,usd:sum.usd+item.usdMinor,ves:sum.ves+item.vesMinor,equiv:sum.equiv+item.vesEquivalentUsdMinor}),{count:0,usd:0,ves:0,equiv:0})
+  const ref=report.reference
   makeTable(doc,autoTable,{
-    startY:46,head:[['Mes','Registros pagados','Recibido USD','Recibido VES','Equivalente USD de pagos VES']],
-    body:report.months.map((item)=>[monthLabel(report.year,item.month),String(item.paidCount),formatMoney(item.usdMinor,'USD'),formatMoney(item.vesMinor,'VES'),formatMoney(item.vesEquivalentUsdMinor,'USD')]),
-    foot:[['TOTAL',String(totals.count),formatMoney(totals.usd,'USD'),formatMoney(totals.ves,'VES'),formatMoney(totals.equiv,'USD')]],
-    columnStyles:{0:{cellWidth:48},1:{cellWidth:36,halign:'right'},2:{cellWidth:44,halign:'right'},3:{cellWidth:44,halign:'right'},4:{cellWidth:'auto',halign:'right'}},
+    startY:46,head:[['Mes','Pagados','Recibido USD','Recibido VES','Equiv. USD (tasa del pago)',...(ref?['Equiv. USD (dólar actual)']:[])]],
+    body:report.months.map((item)=>[monthLabel(report.year,item.month),String(item.paidCount),formatMoney(item.usdMinor,'USD'),formatMoney(item.vesMinor,'VES'),formatMoney(item.vesEquivalentUsdMinor,'USD'),...(ref?[formatMoney(item.vesAtReferenceUsdMinor??0,'USD')]:[])]),
+    foot:[['TOTAL',String(totals.count),formatMoney(totals.usd,'USD'),formatMoney(totals.ves,'VES'),formatMoney(totals.equiv,'USD'),...(ref?[formatMoney(report.currencySummary.vesAtReferenceUsdMinor??0,'USD')]:[])]],
+    columnStyles:{0:{cellWidth:40},1:{cellWidth:24,halign:'right'},2:{cellWidth:38,halign:'right'},3:{cellWidth:42,halign:'right'},4:{cellWidth:'auto',halign:'right'},5:{cellWidth:'auto',halign:'right'}},
     footStyles:{fillColor:[247,243,233],textColor:palette.ink,fontStyle:'bold'},
   },'Control anual de aportes',subtitle)
+  if(ref){
+    const y=((doc as unknown as {lastAutoTable?:{finalY:number}}).lastAutoTable?.finalY??150)+7
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...palette.ink)
+    doc.text(`Equivalente al dólar actual: ${ref.label} a Bs.S ${ref.rate.toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2})} por USD (actualizado ${new Date(ref.updatedAt).toLocaleDateString('es-VE')}). Valor informativo, no reemplaza la tasa registrada en cada pago.`,14,y,{maxWidth:268})
+  }
 
   doc.addPage('a4','landscape')
   doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...palette.ink);doc.text('Matriz anual de participantes',14,43)

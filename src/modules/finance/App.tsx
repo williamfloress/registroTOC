@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { hasSeenTour, startTour } from '../../tour'
-import escudo from '../../assets/escudo-carmelita.png'
+import escudo from '../../assets/escudo-sm.png'
 import { Activity, ArrowDownLeft, ArrowUpRight, BookOpen, CalendarDays, ChevronDown, CircleHelp, Compass, Download, FileBarChart2, HandCoins, LayoutDashboard, ListFilter, Menu, Plus, Search, Settings2, ShieldCheck, Users, Wallet, X } from 'lucide-react'
 import { balanceAt, contributionPaymentSchema, convertUsdMinorToVesMinor, convertVesMinorToUsdMinor, formatMoney, movementSchema, obligationSchema, participantSchema, parseAmountToMinor, summarizePeriod, type Contribution, type ContributionBatch, type ContributionPeriod, type FinancialAccount, type FinancialMovement, type MovementType, type ObligationSchedule, type Participant } from '../../domain/finance'
 import { ensureInitialAccounts, ensureInitialObligations, financeRepository, obligationRepository, participantRepository } from '../../infrastructure/database'
 import { contributionRepository } from '../../infrastructure/contributions'
 import { summarizeContributionMonth } from '../../domain/dashboard'
 import InfoTip from './InfoTip'
+import SettingsPage from './SettingsPage'
+import './settings.css'
+import { useSettings } from '../../settings'
 import ExchangeRates from './ExchangeRates'
 import ReportsPage from './ReportsPage'
 import BackupPage from './BackupPage'
@@ -31,6 +34,7 @@ export default function App() {
   const [accounts, setAccounts] = useState<FinancialAccount[]>([])
   const [movements, setMovements] = useState<FinancialMovement[]>([])
   const [ready, setReady] = useState(false)
+  const settings = useSettings()
   const [activePage, setActivePage] = useState('Resumen')
   const [accountId, setAccountId] = useState('all')
   const [period, setPeriod] = useState(todayLocal().slice(0, 7))
@@ -85,7 +89,7 @@ export default function App() {
 
   return <div className="app-shell">
     <aside className={`sidebar ${mobileNav ? 'sidebar-open' : ''}`}>
-      <div className="brand"><img className="brand-mark" src={escudo} alt="Escudo de la Tercera Orden Carmelita"/><div><strong>reportesTOC</strong><small>Tercera Orden Carmelita</small></div><button className="icon-button close-nav" onClick={() => setMobileNav(false)} aria-label="Cerrar menú"><X size={18}/></button></div>
+      <div className="brand"><img className="brand-mark" src={escudo} alt="Escudo de la Tercera Orden Carmelita"/><div><strong>reportesTOC</strong><small>{settings.orgName}</small></div><button className="icon-button close-nav" onClick={() => setMobileNav(false)} aria-label="Cerrar menú"><X size={18}/></button></div>
       <div className="workspace-label">ADMINISTRACIÓN</div>
       <nav data-tour="nav">{links.map(({ label, icon: Icon }) => <button key={label} className={`nav-link ${activePage === label ? 'active' : ''}`} onClick={() => { setActivePage(label); setMobileNav(false) }}><Icon size={18}/><span>{label}</span>{label === 'Libro financiero' && <span className="nav-current"/>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="local-card" data-tour="local-card"><ShieldCheck size={17}/><div><strong>Solo en este navegador</strong><span>{persistenceMessage}</span><span>{offlineReady?'Recursos sin conexión listos':'Preparando acceso sin conexión…'}</span><span>Haz respaldos externos con frecuencia.</span></div></div><button className="help-link" onClick={() => { setActivePage('Respaldo'); notify('Tus datos no se sincronizan. El navegador puede eliminarlos; guarda una copia JSON externa.') }}><CircleHelp size={17}/> Ayuda y privacidad</button><button className="help-link tour-link" data-tour="tour-help" onClick={() => { setMobileNav(false); setActivePage('Resumen'); window.setTimeout(startTour, 150) }}><Compass size={17}/> Ver guía de uso</button></div>
@@ -106,8 +110,8 @@ export default function App() {
             })}</tbody></table></div>
             <div className="ledger-footer"><span className="footer-title">Saldo al final del período</span>{summaries.map((s) => <div key={s.account.id} className="footer-account" title={`Saldo inicial del período: ${formatMoney(s.opening,s.account.currency)}`}><span>{s.account.name}</span><strong>{formatMoney(s.closing,s.account.currency)}</strong></div>)}</div>
           </section>
-        </> : activePage === 'Participantes' ? <ParticipantsPage /> : activePage === 'Aportes mensuales' ? <ContributionsPage /> : activePage === 'Reportes' ? <ReportsPage /> : activePage === 'Respaldo' ? <BackupPage /> : <Placeholder page={activePage} onGo={() => setActivePage('Libro financiero')} />}
-        <footer className="page-footer">reportesTOC <span>·</span> Versión inicial local <span>·</span> Sin conexión requerida</footer>
+        </> : activePage === 'Participantes' ? <ParticipantsPage /> : activePage === 'Aportes mensuales' ? <ContributionsPage /> : activePage === 'Reportes' ? <ReportsPage /> : activePage === 'Respaldo' ? <BackupPage /> : activePage === 'Configuración' ? <SettingsPage accounts={accounts} movements={movements} onOpening={(id) => { setSelected(null); setAccountId(id); setModal('opening') }} onGoSummary={() => setActivePage('Resumen')} /> : <Placeholder page={activePage} onGo={() => setActivePage('Libro financiero')} />}
+        <footer className="page-footer">reportesTOC <span>·</span> Versión inicial local <span>·</span> Sin conexión requerida<a className="footer-credit" href="https://williamflores.vercel.app/" target="_blank" rel="noopener noreferrer">Proyecto realizado por <strong>William Flores</strong></a></footer>
       </div>
     </main>
     {modal && <MovementModal mode={modal} account={accounts.find((a) => a.id === accountId) ?? accounts[0]} accounts={accounts} movement={selected} onClose={() => setModal(null)} onSaved={async (message) => { await refresh(); setModal(null); notify(message) }}/>}

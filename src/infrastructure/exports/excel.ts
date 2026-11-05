@@ -1,7 +1,8 @@
 import type { ContributionReportData } from '../../domain/reports'
 import type { FinanceReportData } from '../../domain/reports'
 
-const workbookTitle = 'Tercera Orden Carmelita · reportesTOC'
+import { getOrgName } from '../../settings'
+const getTitle = () => `${getOrgName()} · reportesTOC`
 const moneyFormat = '#,##0.00;[Red]-#,##0.00'
 
 function saveBlob(blob: Blob, fileName: string) {
@@ -15,7 +16,7 @@ function safeName(value: string) { return value.normalize('NFD').replace(/[\u030
 
 function prepareSheet(sheet: import('exceljs').Worksheet, title: string, subtitle: string, headers: string[]) {
   sheet.mergeCells(1,1,1,headers.length)
-  const titleCell=sheet.getCell(1,1);titleCell.value=workbookTitle;titleCell.font={bold:true,size:16,color:{argb:'FF2F2816'}}
+  const titleCell=sheet.getCell(1,1);titleCell.value=getTitle();titleCell.font={bold:true,size:16,color:{argb:'FF2F2816'}}
   sheet.mergeCells(2,1,2,headers.length)
   const subtitleCell=sheet.getCell(2,1);subtitleCell.value=`${title} · ${subtitle}`;subtitleCell.font={size:12,color:{argb:'FF644B0F'}}
   const header=sheet.getRow(4);header.values=[...headers]
@@ -23,7 +24,7 @@ function prepareSheet(sheet: import('exceljs').Worksheet, title: string, subtitl
   header.eachCell((cell)=>{cell.font={bold:true,color:{argb:'FFFFFFFF'}};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF644B0F'}};cell.alignment={vertical:'middle',wrapText:true};cell.border={bottom:{style:'thin',color:{argb:'FFAB9E77'}}}})
   sheet.views=[{state:'frozen',ySplit:4}]
   sheet.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,printTitlesRow:'1:4',margins:{left:0.25,right:0.25,top:0.5,bottom:0.5,header:0.2,footer:0.2}}
-  sheet.headerFooter.oddFooter=`&L${workbookTitle}&R&P de &N`
+  sheet.headerFooter.oddFooter=`&L${getTitle()}&R&P de &N`
   sheet.properties.defaultRowHeight=21
 }
 function finishSheet(sheet: import('exceljs').Worksheet, headerRow=4) {
@@ -40,7 +41,7 @@ function finishSheet(sheet: import('exceljs').Worksheet, headerRow=4) {
 export async function exportFinanceExcel(report: FinanceReportData) {
   const ExcelJS=await import('exceljs')
   const workbook=new ExcelJS.Workbook()
-  workbook.creator=workbookTitle;workbook.subject='Libro financiero';workbook.created=new Date()
+  workbook.creator=getTitle();workbook.subject='Libro financiero';workbook.created=new Date()
   const movementsSheet=workbook.addWorksheet('Movimientos')
   const movementHeaders=['Fecha','Cuenta','Moneda','Concepto','Debe','Haber','Saldo']
   prepareSheet(movementsSheet,'Libro financiero',report.periodLabel,movementHeaders)
@@ -72,14 +73,16 @@ export async function exportFinanceExcel(report: FinanceReportData) {
 export async function exportContributionsExcel(report: ContributionReportData) {
   const ExcelJS=await import('exceljs')
   const workbook=new ExcelJS.Workbook()
-  workbook.creator=workbookTitle;workbook.subject='Control anual de aportes';workbook.created=new Date()
+  workbook.creator=getTitle();workbook.subject='Control anual de aportes';workbook.created=new Date()
 
   const summary=workbook.addWorksheet('Resumen anual')
-  prepareSheet(summary,'Resumen anual de aportes',String(report.year),['Mes','Registros pagados','Recibido USD','Recibido VES','Equivalente USD de VES'])
-  for(const item of report.months)summary.addRow([new Date(report.year,item.month-1,1),item.paidCount,decimal(item.usdMinor),decimal(item.vesMinor),decimal(item.vesEquivalentUsdMinor)])
-  summary.addRow(['TOTAL',report.months.reduce((sum,item)=>sum+item.paidCount,0),decimal(report.currencySummary.usdMinor),decimal(report.currencySummary.vesMinor),decimal(report.currencySummary.vesEquivalentUsdMinor)])
-  summary.columns=[{width:20,style:{numFmt:'mmmm'}},{width:20},{width:20,style:{numFmt:moneyFormat}},{width:20,style:{numFmt:moneyFormat}},{width:27,style:{numFmt:moneyFormat}}]
-  summary.getRow(summary.rowCount).font={bold:true,color:{argb:'FF644B0F'}};finishSheet(summary)
+  prepareSheet(summary,'Resumen anual de aportes',String(report.year),['Mes','Registros pagados','Recibido USD','Recibido VES','Equivalente USD (tasa de cada pago)',...(report.reference?['Equivalente USD (dólar actual)']:[])])
+  for(const item of report.months)summary.addRow([new Date(report.year,item.month-1,1),item.paidCount,decimal(item.usdMinor),decimal(item.vesMinor),decimal(item.vesEquivalentUsdMinor),...(report.reference?[decimal(item.vesAtReferenceUsdMinor??0)]:[])])
+  summary.addRow(['TOTAL',report.months.reduce((sum,item)=>sum+item.paidCount,0),decimal(report.currencySummary.usdMinor),decimal(report.currencySummary.vesMinor),decimal(report.currencySummary.vesEquivalentUsdMinor),...(report.reference?[decimal(report.currencySummary.vesAtReferenceUsdMinor??0)]:[])])
+  summary.columns=[{width:20,style:{numFmt:'mmmm'}},{width:20},{width:20,style:{numFmt:moneyFormat}},{width:20,style:{numFmt:moneyFormat}},{width:34,style:{numFmt:moneyFormat}},{width:30,style:{numFmt:moneyFormat}}]
+  summary.getRow(summary.rowCount).font={bold:true,color:{argb:'FF644B0F'}}
+  if(report.reference)summary.addRow([]),summary.addRow([`Dólar actual: ${report.reference.label} a Bs.S ${report.reference.rate.toFixed(2)} por USD (actualizado ${new Date(report.reference.updatedAt).toLocaleDateString('es-VE')}). Valor informativo.`])
+  finishSheet(summary)
 
   const matrix=workbook.addWorksheet('Matriz de participantes')
   const matrixHeaders=['Participante','Estado',...report.months.map((item)=>new Date(report.year,item.month-1,1).toLocaleDateString('es-VE',{month:'short'}))]
@@ -101,10 +104,10 @@ export async function exportContributionsExcel(report: ContributionReportData) {
   finishSheet(details)
 
   const currency=workbook.addWorksheet('Resumen por moneda')
-  prepareSheet(currency,'Resumen por moneda',String(report.year),['Moneda recibida','Monto recibido','Moneda del monto','Equivalente USD (solo VES)'])
-  currency.addRow(['USD',decimal(report.currencySummary.usdMinor),'USD',decimal(report.currencySummary.usdMinor)])
-  currency.addRow(['VES',decimal(report.currencySummary.vesMinor),'VES',decimal(report.currencySummary.vesEquivalentUsdMinor)])
-  currency.columns=[{width:23},{width:22,style:{numFmt:moneyFormat}},{width:22},{width:30,style:{numFmt:moneyFormat}}]
+  prepareSheet(currency,'Resumen por moneda',String(report.year),['Moneda recibida','Monto recibido','Moneda del monto','Equivalente USD (tasa de cada pago)',...(report.reference?['Equivalente USD (dólar actual)']:[])])
+  currency.addRow(['USD',decimal(report.currencySummary.usdMinor),'USD',decimal(report.currencySummary.usdMinor),...(report.reference?[decimal(report.currencySummary.usdMinor)]:[])])
+  currency.addRow(['VES',decimal(report.currencySummary.vesMinor),'VES',decimal(report.currencySummary.vesEquivalentUsdMinor),...(report.reference?[decimal(report.currencySummary.vesAtReferenceUsdMinor??0)]:[])])
+  currency.columns=[{width:23},{width:22,style:{numFmt:moneyFormat}},{width:22},{width:34,style:{numFmt:moneyFormat}},{width:30,style:{numFmt:moneyFormat}}]
   finishSheet(currency)
 
   const buffer=await workbook.xlsx.writeBuffer()

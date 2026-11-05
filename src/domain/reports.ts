@@ -5,7 +5,11 @@ export type FinanceReportAccount = {
   account: FinancialAccount; opening: number; income: number; expense: number; closing: number
   movements: Array<FinancialMovement & { balanceMinor: number }>
 }
-export type ContributionReportMonth = { month: number; paidCount: number; usdMinor: number; vesMinor: number; vesEquivalentUsdMinor: number }
+export type ReportReferenceRate = { label: string; rate: number; updatedAt: string }
+export type ContributionReportMonth = { month: number; paidCount: number; usdMinor: number; vesMinor: number; vesEquivalentUsdMinor: number; vesAtReferenceUsdMinor?: number }
+
+/** Equivalente en USD minor de un monto VES minor a una tasa de referencia (bolívares por dólar). */
+export function vesToUsdAtRate(vesMinor: number, rate: number) { return rate > 0 ? Math.round(vesMinor / rate) : 0 }
 export type ContributionReportLine = { contribution: Contribution|ContributionHistory; batch?: ContributionBatch; status: 'Pagado'|'Anulado' }
 
 export function buildFinanceReport(accounts: FinancialAccount[], movements: FinancialMovement[], filter: FinanceReportFilter) {
@@ -22,7 +26,7 @@ export function buildFinanceReport(accounts: FinancialAccount[], movements: Fina
   return { periodLabel: filter.periodLabel, accounts: accountReports }
 }
 
-export function buildContributionReport(participants: Participant[], current: Contribution[], history: ContributionHistory[], year: number, participantId = 'all', batches: ContributionBatch[] = []) {
+export function buildContributionReport(participants: Participant[], current: Contribution[], history: ContributionHistory[], year: number, participantId = 'all', batches: ContributionBatch[] = [], reference: ReportReferenceRate | null = null) {
   const selectedPeople = participants.filter((person) => participantId === 'all' || person.id === participantId)
   const people = new Map(selectedPeople.map((person) => [person.id, person]))
   const batchById = new Map(batches.map((batch) => [batch.id, batch]))
@@ -38,6 +42,7 @@ export function buildContributionReport(participants: Participant[], current: Co
       usdMinor: rows.filter((item) => item.paymentCurrency === 'USD').reduce((sum, item) => sum + item.amountPaidMinor, 0),
       vesMinor: ves.reduce((sum, item) => sum + item.amountPaidMinor, 0),
       vesEquivalentUsdMinor: ves.reduce((sum, item) => sum + convertVesMinorToUsdMinor(item.amountPaidMinor, item.exchangeRate!), 0),
+      ...(reference ? { vesAtReferenceUsdMinor: vesToUsdAtRate(rows.filter((item) => item.paymentCurrency === 'VES').reduce((sum, item) => sum + item.amountPaidMinor, 0), reference.rate) } : {}),
     }
   })
   const details: ContributionReportLine[] = [
@@ -50,8 +55,9 @@ export function buildContributionReport(participants: Participant[], current: Co
     vesMinor: paid.filter((item) => item.paymentCurrency === 'VES').reduce((sum, item) => sum + item.amountPaidMinor, 0),
     vesEquivalentUsdMinor: paid.filter((item) => item.paymentCurrency === 'VES' && item.exchangeRate)
       .reduce((sum, item) => sum + convertVesMinorToUsdMinor(item.amountPaidMinor, item.exchangeRate!), 0),
+    ...(reference ? { vesAtReferenceUsdMinor: vesToUsdAtRate(paid.filter((item) => item.paymentCurrency === 'VES').reduce((sum, item) => sum + item.amountPaidMinor, 0), reference.rate) } : {}),
   }
-  return { year, participants: selectedPeople, months, details, currencySummary }
+  return { year, participants: selectedPeople, months, details, currencySummary, reference }
 }
 
 export type FinanceReportData = ReturnType<typeof buildFinanceReport>

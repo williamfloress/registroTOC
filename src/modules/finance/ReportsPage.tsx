@@ -8,6 +8,8 @@ import { exportContributionsExcel, exportFinanceExcel } from '../../infrastructu
 import { exportContributionsPdf, exportFinancePdf } from '../../infrastructure/exports/pdf'
 import './reports.css'
 import InfoTip from './InfoTip'
+import { useSettings } from '../../settings'
+import { fetchRates, pickReference, readRatesCache, type RatesSnapshot } from '../../infrastructure/rates'
 
 type ReportKind = 'book' | 'contributions'
 type RangeKind = 'month' | 'year' | 'range' | 'all'
@@ -56,7 +58,11 @@ export default function ReportsPage() {
     return { from, to, label: `${from} a ${to}` }
   }, [rangeKind, month, year, from, to])
   const financeReport = useMemo(() => buildFinanceReport(accounts, movements, { accountId, ...dateRange, periodLabel: dateRange.label }), [accounts, movements, accountId, dateRange])
-  const contributionReport = useMemo(() => buildContributionReport(participants, current, history, year, participantId, batches), [participants, current, history, year, participantId, batches])
+  const rateSource = useSettings().rateSource
+  const [rates, setRates] = useState<RatesSnapshot | null>(readRatesCache)
+  useEffect(() => { fetchRates().then(setRates).catch(() => undefined) }, [])
+  const reference = useMemo(() => { const r = pickReference(rates, rateSource); return r ? { label: r.label, rate: r.rate, updatedAt: r.updatedAt } : null }, [rates, rateSource])
+  const contributionReport = useMemo(() => buildContributionReport(participants, current, history, year, participantId, batches, reference), [participants, current, history, year, participantId, batches, reference])
   const movementCount = financeReport.accounts.reduce((sum, item) => sum + item.movements.length, 0)
 
   async function download(format: 'pdf' | 'excel') {
@@ -90,7 +96,7 @@ export default function ReportsPage() {
         <div className="report-preview"><div><strong>{movementCount}</strong><span>movimientos</span></div><span>Período: {dateRange.label}</span><div className="report-balances">{financeReport.accounts.map((item) => <div key={item.account.id}><span>{item.account.name} · saldo de cierre</span><strong>{formatMoney(item.closing, item.account.currency)}</strong></div>)}</div></div>
       </> : <>
         <div className="report-filter-grid"><label className="field-label">Año<input type="number" min="2000" max="9999" value={year} onChange={(e) => setYear(Number(e.target.value))}/></label><label className="field-label">Participante<select value={participantId} onChange={(e) => setParticipantId(e.target.value)}><option value="all">Todos los participantes</option>{participants.map((person) => <option key={person.id} value={person.id}>{person.firstName} {person.lastName}{person.active ? '' : ' · Inactivo'}</option>)}</select></label></div>
-        <div className="report-preview"><div><strong>{contributionReport.details.length}</strong><span>pagos e historial de anulaciones</span></div><span>Resumen de pagos registrados (anulados excluidos):</span><div className="report-balances"><div><span>USD recibido</span><strong>{formatMoney(contributionReport.currencySummary.usdMinor, 'USD')}</strong></div><div><span>VES recibido</span><strong>{formatMoney(contributionReport.currencySummary.vesMinor, 'VES')}</strong></div><div><span>VES equivalente informativo</span><strong>{formatMoney(contributionReport.currencySummary.vesEquivalentUsdMinor, 'USD')}</strong></div></div></div>
+        <div className="report-preview"><div><strong>{contributionReport.details.length}</strong><span>pagos e historial de anulaciones</span></div><span>Resumen de pagos registrados (anulados excluidos):</span><div className="report-balances"><div><span>USD recibido</span><strong>{formatMoney(contributionReport.currencySummary.usdMinor, 'USD')}</strong></div><div><span>VES recibido</span><strong>{formatMoney(contributionReport.currencySummary.vesMinor, 'VES')}</strong></div><div><span>USD equivalente (tasa de cada pago)</span><strong>{formatMoney(contributionReport.currencySummary.vesEquivalentUsdMinor, 'USD')}</strong></div>{reference && <div><span>USD equivalente al dólar actual</span><strong>{formatMoney(contributionReport.currencySummary.vesAtReferenceUsdMinor ?? 0, 'USD')}</strong></div>}</div>{reference ? <small className="report-reference-note">{reference.label}: Bs.S {reference.rate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} por USD · actualizado {new Date(reference.updatedAt).toLocaleDateString('es-VE')}</small> : <small className="report-reference-note">Sin conexión y sin tasa guardada: el equivalente al dólar actual no está disponible.</small>}</div>
       </>}
       <div className="report-actions"><span>Los archivos se generan localmente y descargan en el navegador.</span><div><button className="button secondary" disabled={!ready || busy || (kind === 'book' && from > to && rangeKind === 'range')} onClick={() => void download('excel')}><FileSpreadsheet size={17}/>{busy ? 'Generando…' : 'Descargar Excel'}</button><button className="button primary" disabled={!ready || busy || (kind === 'book' && from > to && rangeKind === 'range')} onClick={() => void download('pdf')}><Download size={17}/>{busy ? 'Generando…' : 'Descargar PDF'}</button></div></div>
       {error && <div className="form-error report-message" role="alert">{error}</div>}{notice && <div className="report-success report-message" role="status">{notice}</div>}

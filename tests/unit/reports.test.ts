@@ -44,6 +44,15 @@ describe('informe anual de aportes', () => {
     expect(report.participants).toHaveLength(2)
   })
 
+  it('calcula el equivalente USD al dólar de referencia sin alterar el de cada pago', () => {
+    const paidVes = contribution('paid-ves', 'ana', 2, 'VES', 45000, '450')
+    const reference = { label: 'Dólar oficial (BCV)', rate: 900, updatedAt: timestamp }
+    const report = buildContributionReport([participant('ana')], [paidVes], [], 2026, 'all', [], reference)
+    expect(report.months[1]).toMatchObject({ vesEquivalentUsdMinor: 100, vesAtReferenceUsdMinor: 50 })
+    expect(report.currencySummary).toMatchObject({ vesEquivalentUsdMinor: 100, vesAtReferenceUsdMinor: 50 })
+    expect(buildContributionReport([participant('ana')], [paidVes], [], 2026).currencySummary).not.toHaveProperty('vesAtReferenceUsdMinor')
+  })
+
   it('filtra un participante sin perder su registro histórico', () => {
     const archived: ContributionHistory = { ...contribution('void', 'inactiva', 4, 'VES', 900), voidedAt: timestamp }
     const report = buildContributionReport([participant('ana'), participant('inactiva', false)], [], [archived], 2026, 'inactiva')

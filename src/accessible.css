@@ -94,7 +94,7 @@ td{font-size:17px;padding:14px 12px}
 .info-tip-bubble{position:absolute;z-index:40;left:0;top:calc(100% + 6px);width:max-content;max-width:min(340px,80vw);padding:12px 14px;border-radius:8px;background:#1f2a20;color:#fff;font-size:16px;font-weight:400;letter-spacing:0;line-height:1.45;text-align:left;box-shadow:0 6px 22px #0003;visibility:hidden;opacity:0;transition:opacity .12s}
 .info-tip:hover .info-tip-bubble,.info-tip:focus-within .info-tip-bubble,.info-tip.open .info-tip-bubble{visibility:visible;opacity:1}
 @media(min-width:561px){.install-button{font-size:16px}}
-.dashboard-section-heading h2{font-weight:700;color:#1f2a20}
+.dashboard-section-heading h2{font-weight:600;color:#1f2a20}
 .dashboard-section-heading p,.rate-card small{color:#3f453d}
 
 /* Evita que se corten los selectores de fecha y filtros con texto grande */
@@ -106,6 +106,29 @@ td{font-size:17px;padding:14px 12px}
 
 /* Pie del libro: solo el saldo final por cuenta */
 .ledger-footer{display:flex;align-items:center;justify-content:flex-start;gap:12px 32px;padding:16px 18px}
-.footer-title{font-weight:700;font-size:16px;color:#1f2a20;margin-right:auto}
+.footer-title{font-weight:600;font-size:16px;color:#1f2a20;margin-right:auto}
 .footer-account{display:grid;gap:2px;font-size:15px;color:#3f453d}
 .footer-account strong{font-size:18px;color:#1f2a20}
+
+.page-footer{display:flex;flex-wrap:wrap;align-items:center;gap:6px 0;color:#3f453d;font-size:15px}
+.footer-credit{margin-left:auto;color:#1f3a22;text-decoration:none;padding:8px 0}
+.footer-credit strong{text-decoration:underline;text-underline-offset:3px}
+.footer-credit:hover strong{color:#5b3d0a}
+@media(max-width:700px){.footer-credit{margin-left:0;flex-basis:100%}}
+
+strong,b,h1,h2,h3,th{font-weight:600}
+
+/* Identidad de color: ingresos en verde, egresos en rojo */
+:root{--income:#17622a;--income-bg:#e3f1e0;--income-line:#9cc795;--expense:#a3261c;--expense-bg:#fbe7e3;--expense-line:#e3a79f}
+.income-text,.money-positive,.activity-amount.income{color:var(--income)}
+.expense-text,.money-negative,.activity-amount.expense{color:var(--expense)}
+.activity-amount.void{color:#5a5f58;text-decoration:line-through}
+.type-mark.income,.activity-symbol.income{background:var(--income-bg);color:var(--income)}
+.type-mark.expense,.activity-symbol.expense{background:var(--expense-bg);color:var(--expense)}
+.activity-symbol.void{background:#ececE6;color:#5a5f58}
+.dashboard-account-flow>span:first-child svg{color:var(--income)}
+.dashboard-account-flow>span:last-child svg{color:var(--expense)}
+.dashboard-account-flow>span:first-child strong{color:var(--income)}
+.dashboard-account-flow>span:last-child strong{color:var(--expense)}
+.segmented button.selected.income-selected{background:var(--income-bg);border-color:var(--income);color:var(--income)}
+.segmented button.selected.expense-selected{background:var(--expense-bg);border-color:var(--expense);color:var(--expense)}
